@@ -17,3 +17,5 @@
 ## DOCS
 
 [Chapter_1](./docs/chapter_1.md)
+
+[Chapter_2](./docs/chapter_2.md)
