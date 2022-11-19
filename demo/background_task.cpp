@@ -32,10 +32,10 @@ void background_task_2() {
 }
 
 int main() {
-  std::thread bt_trhead_1(background_task_1);
-  std::thread bt_trhead_2(background_task_2);
-  bt_trhead_1.detach();
-  bt_trhead_2.detach();
+  std::thread bt_thread_1(background_task_1);
+  std::thread bt_thread_2(background_task_2);
+  bt_thread_1.detach();
+  bt_thread_2.detach();
 
   while (1) {
     std::cout << "这是主线程\n";

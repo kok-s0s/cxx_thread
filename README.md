@@ -23,3 +23,9 @@
 ## DEMO
 
 - [background_task](./demo/background_task.cpp)
+
+## Thread Status
+
+[Thread States in Operating Systems](https://www.geeksforgeeks.org/thread-states-in-operating-systems/)
+
+![](https://media.geeksforgeeks.org/wp-content/uploads/20191120195346/States-of-a-thread.png)
