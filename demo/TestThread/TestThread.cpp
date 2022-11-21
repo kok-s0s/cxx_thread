@@ -1,68 +1,104 @@
 #include "TestThread.h"
 
-TestThread::TestThread(std::function<void()> func) : _thread(func) {
+TestThread::TestThread(std::function<void()> func) {
   _status = ThreadStatus::Ready;
-  start();
-}
-
-TestThread::TestThread(std::function<void(bool &flag)> func,
-                       std::reference_wrapper<bool> flag)
-    : _thread(func, flag) {
-  _status = ThreadStatus::Ready;
-  start();
-}
-
-TestThread::TestThread(TestThread &&obj) : _thread(std::move(obj._thread)) {
-  _status = ThreadStatus::Ready;
-  start();
-}
-
-TestThread &TestThread::operator=(TestThread &&obj) {
-  if (_thread.joinable())
-    _thread.join();
-
-  _thread = std::move(obj._thread);
-  _status = ThreadStatus::Ready;
-  start();
-  return *this;
+  _thread = nullptr;
+  _thread_pause_flag = false;
+  _thread_stop_flag = false;
+  _func = func;
 }
 
 TestThread::~TestThread() {
-  if (_thread.joinable())
-    _thread.join();
+  if (_thread->joinable())
+    _thread->join();
 
   _status = ThreadStatus::Finished;
 }
 
-std::thread::id TestThread::get_id() { return _thread.get_id(); }
+std::thread::id TestThread::get_id() { return _thread->get_id(); }
 
-int TestThread::getStatus() const { return _status; }
+int TestThread::getStatus() const { return (int)_status; }
 
 bool TestThread::isRunning() { return _status == ThreadStatus::Running; }
 
-bool TestThread::isWaiting() { return _status == ThreadStatus::Waiting; }
+bool TestThread::isPaused() { return _status == ThreadStatus::Paused; }
 
-bool TestThread::isDelayed() { return _status == ThreadStatus::Delayed; }
+bool TestThread::isFinished() { return _status == ThreadStatus::Finished; }
 
-bool TestThread::isBlocked() { return _status == ThreadStatus::Blocked; }
+void TestThread::run() {
+  while (!_thread_stop_flag) {
+    try {
+      _func();
+    } catch (std::exception &e) {
+      break;
+    }
 
-bool TestThread::isFinished() {
-  if (_thread.joinable()) {
-    return false;
-  } else {
-    _status = ThreadStatus::Finished;
-    return true;
+    if (_thread_pause_flag) {
+      std::unique_lock<std::mutex> thread_locker(_mutex);
+      if (_thread_pause_flag) {
+        _condition_variable.wait(thread_locker);
+      }
+
+      thread_locker.unlock();
+    }
   }
+
+  _thread_pause_flag = false;
+  _thread_stop_flag = false;
 }
 
 void TestThread::start() {
-  if (_thread.joinable())
-    _status = ThreadStatus::Running;
+  if (_thread == nullptr) {
+    _thread = std::make_unique<std::thread>(&TestThread::run, this);
+    if (_thread != nullptr) {
+      _status = ThreadStatus::Running;
+      _thread_pause_flag = false;
+      _thread_stop_flag = false;
+    }
+  }
+}
+
+void TestThread::pause() {
+  if (_thread != nullptr) {
+    if (_status == ThreadStatus::Running) {
+      _thread_pause_flag = true;
+      _status = ThreadStatus::Paused;
+    }
+  }
+}
+
+void TestThread::resume() {
+  if (_thread != nullptr) {
+    if (_status == ThreadStatus::Paused) {
+      _thread_pause_flag = false;
+      _condition_variable.notify_all();
+      _status = ThreadStatus::Running;
+    }
+  }
+}
+
+void TestThread::quit() {
+  if (_thread != nullptr) {
+    _thread_stop_flag = true;
+    _thread_pause_flag = false;
+
+    _condition_variable.notify_all();
+
+    if (_thread->joinable()) {
+      _thread->join();
+    }
+
+    _thread.reset();
+
+    if (_thread == nullptr) {
+      _status = ThreadStatus::Finished;
+    }
+  }
 }
 
 bool TestThread::detach() {
-  if (_thread.joinable()) {
-    _thread.detach();
+  if (_thread->joinable()) {
+    _thread->detach();
     return true;
   }
 
@@ -70,8 +106,8 @@ bool TestThread::detach() {
 }
 
 bool TestThread::join() {
-  if (_thread.joinable()) {
-    _thread.join();
+  if (_thread->joinable()) {
+    _thread->join();
     _status = ThreadStatus::Finished;
     return true;
   }
