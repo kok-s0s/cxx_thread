@@ -21,7 +21,9 @@ public:
   TestThread(const TestThread &) = delete;
   TestThread &operator=(const TestThread &) = delete;
   TestThread(std::function<void()> func);
+  TestThread();
   ~TestThread();
+  void setFunc(std::function<void()> func);
   std::thread::id get_id();
   int getStatus() const;
   bool isRunning();

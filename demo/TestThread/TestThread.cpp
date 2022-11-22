@@ -8,12 +8,22 @@ TestThread::TestThread(std::function<void()> func) {
   _func = func;
 }
 
+TestThread::TestThread() {
+  _status = ThreadStatus::Ready;
+  _thread = nullptr;
+  _thread_pause_flag = false;
+  _thread_stop_flag = false;
+  _func = []() -> void { return; };
+}
+
 TestThread::~TestThread() {
   if (_thread->joinable())
     _thread->join();
 
   _status = ThreadStatus::Finished;
 }
+
+void TestThread::setFunc(std::function<void()> func) { _func = func; }
 
 std::thread::id TestThread::get_id() { return _thread->get_id(); }
 
