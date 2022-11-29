@@ -26,7 +26,9 @@
 
 - [background_task](./demo/background_task.cpp)
 - [TestThread](./demo/TestThread/)
-- [threadsafe_stack](./demo//threadsafe_stack/)
+- [threadsafe_stack](./demo/threadsafe_stack/)
+- [async_to_get_answer](../demo/async_to_get_answer/)
+- [ThreadPool](./demo/ThreadPool/)
 
 ## Thread Status
 
@@ -51,3 +53,5 @@
   - mutex
   - lock
   - interface
+
+4. Synchronous operations
