@@ -18,13 +18,14 @@ void normal_task_02() {
 class Test {
 public:
   ThreadExtension p_thread;
-  Test() {}
+  Test() {
+    p_thread.addFunc(normal_task_01);
+    p_thread.addFunc(normal_task_02);
+  }
 };
 
 int main() {
   Test t;
-  t.p_thread.addFunc(normal_task_01);
-  t.p_thread.addFunc(normal_task_02);
 
   while (1) {
     std::cout << "Thread State:" << t.p_thread.getStatus() << std::endl;
