@@ -3,14 +3,19 @@
 #include <iomanip>
 #include <iostream>
 
-void normal_task() {
-  std::cout << "normal task start\n";
+void normal_task_01() {
+  std::cout << "normal task 01 start\n";
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  std::cout << "normal task end\n";
+  std::cout << "normal task 01 end\n";
+}
+
+void normal_task_02() {
+  std::cout << "normal task 02 start\n";
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::cout << "normal task 02 end\n";
 }
 
 class Test {
-private:
 public:
   ThreadExtension p_thread;
   Test() {}
@@ -18,7 +23,8 @@ public:
 
 int main() {
   Test t;
-  t.p_thread.setFunc(normal_task);
+  t.p_thread.addFunc(normal_task_01);
+  t.p_thread.addFunc(normal_task_02);
 
   while (1) {
     std::cout << "Thread State:" << t.p_thread.getStatus() << std::endl;

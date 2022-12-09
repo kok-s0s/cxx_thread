@@ -1,19 +1,10 @@
 #include "ThreadExtension.h"
 
-ThreadExtension::ThreadExtension(std::function<void()> func) {
-  _status = ThreadStatus::Ready;
-  _thread = nullptr;
-  _thread_pause_flag = false;
-  _thread_stop_flag = false;
-  _func = func;
-}
-
 ThreadExtension::ThreadExtension() {
   _status = ThreadStatus::Ready;
   _thread = nullptr;
   _thread_pause_flag = false;
   _thread_stop_flag = false;
-  _func = []() -> void { return; };
 }
 
 ThreadExtension::~ThreadExtension() {
@@ -23,7 +14,9 @@ ThreadExtension::~ThreadExtension() {
   _status = ThreadStatus::Finished;
 }
 
-void ThreadExtension::setFunc(std::function<void()> func) { _func = func; }
+void ThreadExtension::addFunc(std::function<void()> func) {
+  _v_func.push_back(func);
+}
 
 std::thread::id ThreadExtension::get_id() { return _thread->get_id(); }
 
@@ -38,7 +31,9 @@ bool ThreadExtension::isFinished() { return _status == ThreadStatus::Finished; }
 void ThreadExtension::run() {
   while (!_thread_stop_flag) {
     try {
-      _func();
+      for (auto _func : _v_func) {
+        _func();
+      }
     } catch (std::exception &e) {
       break;
     }

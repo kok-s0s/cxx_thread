@@ -4,6 +4,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <vector>
 
 enum class ThreadStatus { Creation, Ready, Running, Paused, Finished };
 
@@ -15,15 +16,14 @@ private:
   std::condition_variable _condition_variable;
   std::atomic<bool> _thread_pause_flag;
   std::atomic<bool> _thread_stop_flag;
-  std::function<void()> _func;
+  std::vector<std::function<void()>> _v_func;
 
 public:
   ThreadExtension(const ThreadExtension &) = delete;
   ThreadExtension &operator=(const ThreadExtension &) = delete;
-  ThreadExtension(std::function<void()> func);
   ThreadExtension();
   ~ThreadExtension();
-  void setFunc(std::function<void()> func);
+  void addFunc(std::function<void()> func);
   std::thread::id get_id();
   int getStatus() const;
   bool isRunning();
