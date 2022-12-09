@@ -1,4 +1,4 @@
-#include "TestThread.h"
+#include "ThreadExtension.h"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -12,7 +12,7 @@ void normal_task() {
 class Test {
 private:
 public:
-  TestThread p_thread;
+  ThreadExtension p_thread;
   Test() {}
 };
 

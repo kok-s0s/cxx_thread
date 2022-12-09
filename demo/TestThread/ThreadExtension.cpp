@@ -1,6 +1,6 @@
-#include "TestThread.h"
+#include "ThreadExtension.h"
 
-TestThread::TestThread(std::function<void()> func) {
+ThreadExtension::ThreadExtension(std::function<void()> func) {
   _status = ThreadStatus::Ready;
   _thread = nullptr;
   _thread_pause_flag = false;
@@ -8,7 +8,7 @@ TestThread::TestThread(std::function<void()> func) {
   _func = func;
 }
 
-TestThread::TestThread() {
+ThreadExtension::ThreadExtension() {
   _status = ThreadStatus::Ready;
   _thread = nullptr;
   _thread_pause_flag = false;
@@ -16,26 +16,26 @@ TestThread::TestThread() {
   _func = []() -> void { return; };
 }
 
-TestThread::~TestThread() {
+ThreadExtension::~ThreadExtension() {
   if (_thread->joinable())
     _thread->join();
 
   _status = ThreadStatus::Finished;
 }
 
-void TestThread::setFunc(std::function<void()> func) { _func = func; }
+void ThreadExtension::setFunc(std::function<void()> func) { _func = func; }
 
-std::thread::id TestThread::get_id() { return _thread->get_id(); }
+std::thread::id ThreadExtension::get_id() { return _thread->get_id(); }
 
-int TestThread::getStatus() const { return (int)_status; }
+int ThreadExtension::getStatus() const { return (int)_status; }
 
-bool TestThread::isRunning() { return _status == ThreadStatus::Running; }
+bool ThreadExtension::isRunning() { return _status == ThreadStatus::Running; }
 
-bool TestThread::isPaused() { return _status == ThreadStatus::Paused; }
+bool ThreadExtension::isPaused() { return _status == ThreadStatus::Paused; }
 
-bool TestThread::isFinished() { return _status == ThreadStatus::Finished; }
+bool ThreadExtension::isFinished() { return _status == ThreadStatus::Finished; }
 
-void TestThread::run() {
+void ThreadExtension::run() {
   while (!_thread_stop_flag) {
     try {
       _func();
@@ -57,9 +57,9 @@ void TestThread::run() {
   _thread_stop_flag = false;
 }
 
-void TestThread::start() {
+void ThreadExtension::start() {
   if (_thread == nullptr) {
-    _thread = std::make_unique<std::thread>(&TestThread::run, this);
+    _thread = std::make_unique<std::thread>(&ThreadExtension::run, this);
     if (_thread != nullptr) {
       _status = ThreadStatus::Running;
       _thread_pause_flag = false;
@@ -68,7 +68,7 @@ void TestThread::start() {
   }
 }
 
-void TestThread::pause() {
+void ThreadExtension::pause() {
   if (_thread != nullptr) {
     if (_status == ThreadStatus::Running) {
       _thread_pause_flag = true;
@@ -77,7 +77,7 @@ void TestThread::pause() {
   }
 }
 
-void TestThread::resume() {
+void ThreadExtension::resume() {
   if (_thread != nullptr) {
     if (_status == ThreadStatus::Paused) {
       _thread_pause_flag = false;
@@ -87,7 +87,7 @@ void TestThread::resume() {
   }
 }
 
-void TestThread::quit() {
+void ThreadExtension::quit() {
   if (_thread != nullptr) {
     _thread_stop_flag = true;
     _thread_pause_flag = false;
@@ -106,7 +106,7 @@ void TestThread::quit() {
   }
 }
 
-bool TestThread::detach() {
+bool ThreadExtension::detach() {
   if (_thread->joinable()) {
     _thread->detach();
     return true;
@@ -115,7 +115,7 @@ bool TestThread::detach() {
   return false;
 }
 
-bool TestThread::join() {
+bool ThreadExtension::join() {
   if (_thread->joinable()) {
     _thread->join();
     _status = ThreadStatus::Finished;
