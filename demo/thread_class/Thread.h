@@ -1,3 +1,6 @@
+#ifndef THREAD_H
+#define THREAD_H
+
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -37,3 +40,5 @@ public:
   bool detach();
   bool join();
 };
+
+#endif /* THREAD_H */
