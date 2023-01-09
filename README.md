@@ -30,6 +30,7 @@
 - [async_to_get_answer](../demo/async_to_get_answer/)
 - [ThreadPool](./demo/ThreadPool/)
 - [thread_class](./demo/thread_class/)
+- [QThread](./demo/QThread_demo/)
 
 ## Thread Status
 
