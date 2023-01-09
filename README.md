@@ -31,6 +31,7 @@
 - [ThreadPool](./demo/ThreadPool/)
 - [thread_class](./demo/thread_class/)
 - [QThread](./demo/QThread_demo/)
+- [sigslot](./demo/sigslot/)
 
 ## Thread Status
 
