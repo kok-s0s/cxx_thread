@@ -25,7 +25,7 @@
 ## DEMO
 
 - [background_task](./demo/background_task.cpp)
-- [ThreadExtension](./demo/ThreadExtension/)
+- [Thread](./demo/Thread/)
 - [threadsafe_stack](./demo/threadsafe_stack/)
 - [async_to_get_answer](../demo/async_to_get_answer/)
 - [ThreadPool](./demo/ThreadPool/)

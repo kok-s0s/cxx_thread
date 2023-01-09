@@ -6,7 +6,7 @@ enable_testing()
 
 SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread")
 
-add_executable(ThreadExtension ThreadExtension.cpp main.cpp)
+add_executable(TestThread Thread.cpp main.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

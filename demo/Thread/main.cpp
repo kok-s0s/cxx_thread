@@ -1,26 +1,28 @@
-#include "ThreadExtension.h"
+#include "Thread.h"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 
-void normal_task_01() {
-  std::cout << "normal task 01 start\n";
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  std::cout << "normal task 01 end\n";
-}
-
-void normal_task_02() {
-  std::cout << "normal task 02 start\n";
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  std::cout << "normal task 02 end\n";
-}
-
 class Test {
 public:
-  ThreadExtension p_thread;
+  Thread p_thread;
   Test() {
-    p_thread.addFunc(normal_task_01);
-    p_thread.addFunc(normal_task_02);
+    p_thread.setFunc([this]() {
+      menber_task_01();
+      menber_task_02();
+    });
+  }
+
+  void menber_task_01() {
+    std::cout << "menber task 01 start\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << "menber task 01 end\n";
+  }
+
+  void menber_task_02() {
+    std::cout << "menber task 02 start\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << "menber task 02 end\n";
   }
 };
 

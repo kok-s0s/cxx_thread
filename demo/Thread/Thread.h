@@ -8,7 +8,7 @@
 
 enum class ThreadStatus { Creation, Ready, Running, Paused, Finished };
 
-class ThreadExtension {
+class Thread {
 private:
   ThreadStatus _status = ThreadStatus::Creation;
   std::unique_ptr<std::thread> _thread;
@@ -16,14 +16,14 @@ private:
   std::condition_variable _condition_variable;
   std::atomic<bool> _thread_pause_flag;
   std::atomic<bool> _thread_stop_flag;
-  std::vector<std::function<void()>> _v_func;
+  std::function<void()> _func;
 
 public:
-  ThreadExtension(const ThreadExtension &) = delete;
-  ThreadExtension &operator=(const ThreadExtension &) = delete;
-  ThreadExtension();
-  ~ThreadExtension();
-  void addFunc(std::function<void()> func);
+  Thread(const Thread &) = delete;
+  Thread &operator=(const Thread &) = delete;
+  Thread();
+  ~Thread();
+  void setFunc(std::function<void()> func);
   std::thread::id get_id();
   int getStatus() const;
   bool isRunning();

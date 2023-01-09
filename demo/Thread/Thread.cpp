@@ -1,39 +1,35 @@
-#include "ThreadExtension.h"
+#include "Thread.h"
 
-ThreadExtension::ThreadExtension() {
+Thread::Thread() {
   _status = ThreadStatus::Ready;
   _thread = nullptr;
   _thread_pause_flag = false;
   _thread_stop_flag = false;
 }
 
-ThreadExtension::~ThreadExtension() {
+Thread::~Thread() {
   if (_thread->joinable())
     _thread->join();
 
   _status = ThreadStatus::Finished;
 }
 
-void ThreadExtension::addFunc(std::function<void()> func) {
-  _v_func.push_back(func);
-}
+void Thread::setFunc(std::function<void()> func) { _func = func; }
 
-std::thread::id ThreadExtension::get_id() { return _thread->get_id(); }
+std::thread::id Thread::get_id() { return _thread->get_id(); }
 
-int ThreadExtension::getStatus() const { return (int)_status; }
+int Thread::getStatus() const { return (int)_status; }
 
-bool ThreadExtension::isRunning() { return _status == ThreadStatus::Running; }
+bool Thread::isRunning() { return _status == ThreadStatus::Running; }
 
-bool ThreadExtension::isPaused() { return _status == ThreadStatus::Paused; }
+bool Thread::isPaused() { return _status == ThreadStatus::Paused; }
 
-bool ThreadExtension::isFinished() { return _status == ThreadStatus::Finished; }
+bool Thread::isFinished() { return _status == ThreadStatus::Finished; }
 
-void ThreadExtension::run() {
+void Thread::run() {
   while (!_thread_stop_flag) {
     try {
-      for (auto _func : _v_func) {
-        _func();
-      }
+      _func();
     } catch (std::exception &e) {
       break;
     }
@@ -52,9 +48,9 @@ void ThreadExtension::run() {
   _thread_stop_flag = false;
 }
 
-void ThreadExtension::start() {
+void Thread::start() {
   if (_thread == nullptr) {
-    _thread = std::make_unique<std::thread>(&ThreadExtension::run, this);
+    _thread = std::make_unique<std::thread>(&Thread::run, this);
     if (_thread != nullptr) {
       _status = ThreadStatus::Running;
       _thread_pause_flag = false;
@@ -63,7 +59,7 @@ void ThreadExtension::start() {
   }
 }
 
-void ThreadExtension::pause() {
+void Thread::pause() {
   if (_thread != nullptr) {
     if (_status == ThreadStatus::Running) {
       _thread_pause_flag = true;
@@ -72,7 +68,7 @@ void ThreadExtension::pause() {
   }
 }
 
-void ThreadExtension::resume() {
+void Thread::resume() {
   if (_thread != nullptr) {
     if (_status == ThreadStatus::Paused) {
       _thread_pause_flag = false;
@@ -82,7 +78,7 @@ void ThreadExtension::resume() {
   }
 }
 
-void ThreadExtension::quit() {
+void Thread::quit() {
   if (_thread != nullptr) {
     _thread_stop_flag = true;
     _thread_pause_flag = false;
@@ -101,7 +97,7 @@ void ThreadExtension::quit() {
   }
 }
 
-bool ThreadExtension::detach() {
+bool Thread::detach() {
   if (_thread->joinable()) {
     _thread->detach();
     return true;
@@ -110,7 +106,7 @@ bool ThreadExtension::detach() {
   return false;
 }
 
-bool ThreadExtension::join() {
+bool Thread::join() {
   if (_thread->joinable()) {
     _thread->join();
     _status = ThreadStatus::Finished;
