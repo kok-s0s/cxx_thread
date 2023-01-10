@@ -1,79 +1,91 @@
-#include "Thread.h"
 #include <iostream>
+#include <string>
+
+#include "Thread.h"
 
 class A {
-private:
-  int num = 0;
-  Thread p;
-  bool flag_01 = false;
-  bool flag_02 = false;
-  bool flag_03 = false;
+ public:
+  enum class Option { KEY01, KEY02, END };
+  struct Param {
+    std::string name;
+    int age;
+  };
 
-public:
+ private:
+  Thread _p;
+  Param _param;
+  bool _flag_01 = false;
+  bool _flag_02 = false;
+  Option _key = Option::KEY01;
+
+ public:
   A() {
-    p.setFunc([this]() {
-      //   if (flag_01) {
-      //     task_01();
-      //   } else {
-      //     std::cout << "false 01\n";
-      //     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      //   }
-      //   if (flag_02) {
-      //     task_02();
-      //   } else {
-      //     std::cout << "false 02\n";
-      //     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      //   }
-      if (flag_03) {
-        task_03(num);
-      } else {
-        std::cout << "false 03\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    _p.setFunc([this]() {
+      // if (_flag_01) {
+      //   task_01();
+      //   _flag_01 = false;
+      // } else {
+      //   std::cout << "false 01\n";
+      //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      // }
+      // if (_flag_02) {
+      //   task_02(_param);
+      //   _flag_02 = false;
+      // } else {
+      //   std::cout << "false 02\n";
+      //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      // }
+      switch (_key) {
+        case Option::KEY01:
+          task_01();
+          break;
+        case Option::KEY02:
+          task_02(_param);
+          break;
+        default:
+          std::cout << "nothing to do!\n";
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          break;
       }
     });
-    p.start();
+    _p.start();
   }
   ~A() {}
+
   void task_01() {
     std::cout << "task 01 start\n";
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     std::cout << "task 01 end\n";
-    flag_01 = false;
   }
-  void task_02() {
+  void task_02(Param param) {
     std::cout << "task 02 start\n";
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::cout << param.name << "\n";
+    std::cout << param.age << "\n";
     std::cout << "task 02 end\n";
-    flag_02 = false;
-  }
-  void task_03(int num) {
-    std::cout << "task 03 start\n";
-    std::cout << num << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    std::cout << "task 03 end\n";
-    flag_03 = false;
   }
 
-  void setFlag_01() { flag_01 = true; }
-  void setFlag_02() { flag_02 = true; }
-  void setFlag_03() { flag_03 = true; }
+  void setFlag_01_true() { _flag_01 = true; }
+  void setFlag_02_true() { _flag_02 = true; }
 
-  void add() {
-    num++;
-    if (num > 100) {
-      num = 0;
-    }
+  void setParam(std::string name, int age) {
+    _param.name = name;
+    _param.age = age;
   }
+
+  void setKey(Option key) { _key = key; }
 };
 
 int main(int, char **) {
   A test_a;
   while (1) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(60));
-    // test_a.setFlag_01();
-    // test_a.setFlag_02();
-    test_a.setFlag_03();
-    test_a.add();
+    // test_a.setFlag_01_true();
+    // test_a.setFlag_02_true();
+    test_a.setParam("me", 23);
+    test_a.setKey(A::Option::KEY02);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    test_a.setKey(A::Option::END);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
   return 0;
 }
