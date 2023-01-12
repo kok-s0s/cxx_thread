@@ -5,7 +5,7 @@
 
 class A {
  public:
-  enum class Option { KEY01, KEY02, END };
+  enum class Option { KEY01, KEY02, KEY03, END };
   struct Param {
     std::string name;
     int age;
@@ -17,6 +17,7 @@ class A {
   bool _flag_01 = false;
   bool _flag_02 = false;
   Option _key = Option::KEY01;
+  int _num = 0;
 
  public:
   A() {
@@ -42,6 +43,9 @@ class A {
         case Option::KEY02:
           task_02(_param);
           break;
+        case Option::KEY03:
+          task_03(&_num);
+          break;
         default:
           std::cout << "nothing to do!\n";
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -64,6 +68,12 @@ class A {
     std::cout << param.age << "\n";
     std::cout << "task 02 end\n";
   }
+  void task_03(int *num) {
+    std::cout << "task 03 start\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::cout << *num << "\n";
+    std::cout << "task 03 end\n";
+  }
 
   void setFlag_01_true() { _flag_01 = true; }
   void setFlag_02_true() { _flag_02 = true; }
@@ -71,6 +81,13 @@ class A {
   void setParam(std::string name, int age) {
     _param.name = name;
     _param.age = age;
+  }
+
+  void add() {
+    _num++;
+    if (_num >= 100) {
+      _num = 0;
+    }
   }
 
   void setKey(Option key) { _key = key; }
@@ -84,8 +101,11 @@ int main(int, char **) {
     test_a.setParam("me", 23);
     test_a.setKey(A::Option::KEY02);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    test_a.add();
+    test_a.setKey(A::Option::KEY03);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     test_a.setKey(A::Option::END);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   return 0;
 }
