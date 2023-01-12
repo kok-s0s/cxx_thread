@@ -32,6 +32,8 @@
 - [thread_class](./demo/thread_class/)
 - [QThread](./demo/QThread_demo/)
 - [sigslot](./demo/sigslot/)
+- [event_linux](./demo/event_linux/)
+- [event_linux_windows](./demo/event_linux_windows/)
 
 ## Thread Status
 
