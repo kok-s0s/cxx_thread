@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <string>
 #include <thread>
 
 #include "Hik_Event.h"
@@ -30,30 +31,20 @@ void SetEvent(event_handle pEvent) { event_set(pEvent); }
 
 void ResetEvent(event_handle pEvent) { event_reset(pEvent); }
 
-// void *pFunc1(void *pEvent) {
-//   while (1) {
-//     WaitForSingleObject(g_event, INFINITE);
-//     printf("this is func1 print!\n");
-//     sleep(1);
-//     ResetEvent(g_event);
-//   }
-// }
-
-// void *pFunc2(void *pEvent) {
-//   while (1) {
-//     sleep(5);
-//     printf("this is func2 print!\n");
-//     SetEvent(g_event);
-//   }
-// }
-
 void *pFunc1(int *pNum) {
   while (1) {
     sleep(1);
-    int num = *pNum;
-    std::cout << num;
-    std::cout << " func1 called\n";
+    std::cout << *pNum << " func1 called\n";
     SetEvent(g_event);
+  }
+}
+
+void *pFunc2(char *pCh) {
+  while (1) {
+    WaitForSingleObject(g_event, INFINITE);
+    std::cout << *pCh << " func2 called\n";
+    sleep(5);
+    ResetEvent(g_event);
   }
 }
 
@@ -61,13 +52,16 @@ int main() {
   g_event = CreateEvent(true, true);
 
   int iNum = 0;
+  char ch = 'a';
 
   std::thread thread1(pFunc1, &iNum);
+  std::thread thread2(pFunc2, &ch);
 
   thread1.detach();
 
   while (1) {
     iNum++;
+    ch = 'a' + iNum % 26;
     sleep(1);
     if (iNum > 100) {
       iNum = 0;
