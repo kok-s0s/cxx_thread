@@ -3,7 +3,7 @@
 
 const int INFINITE = -1;
 class CEvent {
-public:
+ public:
   CEvent(bool bIsManualReset, bool bInitialSignaled);
   ~CEvent();
   bool CreateEvent();
@@ -11,7 +11,7 @@ public:
   bool Reset();
   bool Wait(int cms);
 
-private:
+ private:
   bool EnsureInitialized();
   bool m_bIsManualReset;
   bool m_bEventStatus;
@@ -22,8 +22,10 @@ private:
 };
 
 CEvent::CEvent(bool bIsManualReset, bool bInitialSignaled)
-    : m_bIsManualReset(bIsManualReset), m_bEventStatus(bInitialSignaled),
-      m_bMutexInitialized(false), m_bCondInitialized(false) {}
+    : m_bIsManualReset(bIsManualReset),
+      m_bEventStatus(bInitialSignaled),
+      m_bMutexInitialized(false),
+      m_bCondInitialized(false) {}
 
 CEvent::~CEvent() {
   if (m_bMutexInitialized) {

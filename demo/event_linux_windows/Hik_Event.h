@@ -13,7 +13,7 @@ typedef struct {
   pthread_mutex_t mutex;
   pthread_cond_t cond;
 } event_t;
-#define event_handle event_t *
+#define event_handle event_t*
 #endif
 
 //返回值：NULL 出错
@@ -120,8 +120,7 @@ int event_timedwait(event_handle hevent, long milliseconds) {
   }
   while (!hevent->state) {
     if (rc = pthread_cond_timedwait(&hevent->cond, &hevent->mutex, &abstime)) {
-      if (rc == ETIMEDOUT)
-        break;
+      if (rc == ETIMEDOUT) break;
       pthread_mutex_unlock(&hevent->mutex);
       return -1;
     }
