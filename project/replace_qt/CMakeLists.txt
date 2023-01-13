@@ -10,6 +10,7 @@ add_executable(replace
   main.cpp
   Example.cpp
   Thread.cpp
+  Hik_Event.cpp
 )
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

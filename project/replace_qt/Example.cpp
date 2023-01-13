@@ -1,27 +1,25 @@
 #include "Example.h"
 
 Example::Example() {
-  normalSig.connect(&Example::normalSlot, this);
-  paramSig.connect(&Example::paramSlot, this);
-  thread.setFunc([this]() {
-    normalSlot(false);
-    // paramSlot(false, 1.f, 2, false, );
+  _event = event_create(true, true);
+
+  _thread.setFunc([this]() {
+    if (!event_timedwait(_event, 50000) && _flag) {
+      std::cout << "event called\n";
+      event_reset(_event);
+      _flag = false;
+    }
   });
-  thread.start();
+
+  _thread.start();
 }
 
-Example::~Example() {}
-
-void Example::normalSlot(bool flag) {
-  if (flag) {
-    std::cout << "normalSlot 所在线程的 Id：" << std::this_thread::get_id()
-              << std::endl;
-    // std::cout << "normalSlot thread id = " << thread.get_id() << std::endl;
-  }
+Example::~Example() {
+  event_destroy(_event);
+  _thread.quit();
 }
 
-void Example::paramSlot(bool flag, double d, int i, bool b, std::string &s) {
-  if (flag) {
-    s = b ? std::to_string(i) : std::to_string(d);
-  }
+void Example::eventSet(bool value) {
+  event_set(_event);
+  _flag = value;
 }

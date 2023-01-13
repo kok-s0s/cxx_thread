@@ -7,19 +7,16 @@ int main(int, char **) {
 
   Example example;
 
+  int num = 0;
+
   while (1) {
-    example.normalSig(true);
-
-    float f = 1.f;
-    short i = 2;  // convertible to int
-    std::string s = "0";
-
-    example.paramSig(true, f, i, false, s);
-    std::cout << s << std::endl;
-    example.paramSig(true, f, i, true, s);
-    std::cout << s << std::endl;
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    if (num % 5 == 0) {
+      example.eventSet(true);
+    } else {
+      std::cout << "no event!\n";
+    }
+    num = num <= 100 ? ++num : 0;
   }
 
   return 0;
