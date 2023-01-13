@@ -38,7 +38,6 @@ void event_destroy(event_handle hevent);
 
 ///
 //源文件.cpp：
-#include "event.h"
 #ifdef __linux
 #include <errno.h>
 #include <sys/time.h>
