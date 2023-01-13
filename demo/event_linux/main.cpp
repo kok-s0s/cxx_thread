@@ -33,8 +33,8 @@ void ResetEvent(CEvent *pEvent) { pEvent->Reset(); }
 void *pFunc1(void *pEvent) {
   while (1) {
     WaitForSingleObject(g_event, INFINITE);
-    printf("this is func1 print!\n");
     sleep(1);
+    printf("this is func1 print!\n");
     ResetEvent(g_event);
   }
 }
