@@ -1,3 +1,6 @@
+#ifndef THREAD_H_
+#define THREAD_H_
+
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -9,7 +12,7 @@
 enum class ThreadStatus { Creation, Ready, Running, Paused, Finished };
 
 class Thread {
-private:
+ private:
   ThreadStatus _status = ThreadStatus::Creation;
   std::unique_ptr<std::thread> _thread;
   std::mutex _mutex;
@@ -18,7 +21,7 @@ private:
   std::atomic<bool> _thread_stop_flag;
   std::function<void()> _func;
 
-public:
+ public:
   Thread(const Thread &) = delete;
   Thread &operator=(const Thread &) = delete;
   Thread();
@@ -37,3 +40,5 @@ public:
   bool detach();
   bool join();
 };
+
+#endif  // THREAD_H_
