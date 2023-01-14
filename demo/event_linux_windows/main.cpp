@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 
-#include "Hik_Event.h"
+#include "Event.h"
 
 event_handle g_event = NULL;
 

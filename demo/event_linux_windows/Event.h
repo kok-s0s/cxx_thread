@@ -1,10 +1,7 @@
 //头文件.h
-#ifndef _HIK_EVENT_H_
-#define _HIK_EVENT_H_
-
 #ifdef _MSC_VER
 #include <Windows.h>
-#define hik_event_handle HANDLE
+#define event_handle HANDLE
 #else
 #include <pthread.h>
 typedef struct {
@@ -16,33 +13,34 @@ typedef struct {
 #define event_handle event_t*
 #endif
 
-//返回值：NULL 出错
+// 返回值：NULL 出错
 event_handle event_create(bool manual_reset, bool init_state);
 
-//返回值：0 等到事件，-1出错
+// 返回值：0 等到事件，-1出错
 int event_wait(event_handle hevent);
 
-//返回值：0 等到事件，1 超时，-1出错
+// 返回值：0 等到事件，1 超时，-1出错
 int event_timedwait(event_handle hevent, long milliseconds);
 
-//返回值：0 成功，-1出错
+// 返回值：0 成功，-1出错
 int event_set(event_handle hevent);
 
-//返回值：0 成功，-1出错
+// 返回值：0 成功，-1出错
 int event_reset(event_handle hevent);
 
-//返回值：无
+// 返回值：无
 void event_destroy(event_handle hevent);
-
-#endif
 
 ///
 //源文件.cpp：
+
 #ifdef __linux
 #include <errno.h>
 #include <sys/time.h>
 #endif
+
 #include <iostream>
+
 event_handle event_create(bool manual_reset, bool init_state) {
 #ifdef _MSC_VER
   HANDLE hevent = CreateEvent(NULL, manual_reset, init_state, NULL);
@@ -65,6 +63,7 @@ event_handle event_create(bool manual_reset, bool init_state) {
 #endif
   return hevent;
 }
+
 int event_wait(event_handle hevent) {
 #ifdef _MSC_VER
   DWORD ret = WaitForSingleObject(hevent, INFINITE);
@@ -91,6 +90,7 @@ int event_wait(event_handle hevent) {
   return 0;
 #endif
 }
+
 int event_timedwait(event_handle hevent, long milliseconds) {
 #ifdef _MSC_VER
   DWORD ret = WaitForSingleObject(hevent, milliseconds);
@@ -138,6 +138,7 @@ int event_timedwait(event_handle hevent, long milliseconds) {
   return 0;
 #endif
 }
+
 int event_set(event_handle hevent) {
 #ifdef _MSC_VER
   return !SetEvent(hevent);
@@ -165,6 +166,7 @@ int event_set(event_handle hevent) {
   return 0;
 #endif
 }
+
 int event_reset(event_handle hevent) {
 #ifdef _MSC_VER
   // ResetEvent 返回非零表示成功
@@ -185,6 +187,7 @@ int event_reset(event_handle hevent) {
   return 0;
 #endif
 }
+
 void event_destroy(event_handle hevent) {
 #ifdef _MSC_VER
   CloseHandle(hevent);
