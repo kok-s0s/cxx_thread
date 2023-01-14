@@ -3,7 +3,7 @@
 #include "Example.h"
 
 int main(int, char **) {
-  std::cout << "主线程启动：" << std::this_thread::get_id() << std::endl;
+  std::cout << "main thread start：" << std::this_thread::get_id() << std::endl;
 
   Example example;
 
