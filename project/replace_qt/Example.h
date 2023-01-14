@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include "Hik_Event.h"
+#include "Event.h"
 #include "Thread.h"
 
 class Example {

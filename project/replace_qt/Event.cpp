@@ -1,12 +1,12 @@
-#include "Hik_Event.h"
+#include "Event.h"
 
-///
-//源文件.cpp：
 #ifdef __linux
 #include <errno.h>
 #include <sys/time.h>
 #endif
+
 #include <iostream>
+
 event_handle event_create(bool manual_reset, bool init_state) {
 #ifdef _MSC_VER
   HANDLE hevent = CreateEvent(NULL, manual_reset, init_state, NULL);
@@ -29,6 +29,7 @@ event_handle event_create(bool manual_reset, bool init_state) {
 #endif
   return hevent;
 }
+
 int event_wait(event_handle hevent) {
 #ifdef _MSC_VER
   DWORD ret = WaitForSingleObject(hevent, INFINITE);
@@ -55,6 +56,7 @@ int event_wait(event_handle hevent) {
   return 0;
 #endif
 }
+
 int event_timedwait(event_handle hevent, long milliseconds) {
 #ifdef _MSC_VER
   DWORD ret = WaitForSingleObject(hevent, milliseconds);
@@ -102,6 +104,7 @@ int event_timedwait(event_handle hevent, long milliseconds) {
   return 0;
 #endif
 }
+
 int event_set(event_handle hevent) {
 #ifdef _MSC_VER
   return !SetEvent(hevent);
@@ -129,6 +132,7 @@ int event_set(event_handle hevent) {
   return 0;
 #endif
 }
+
 int event_reset(event_handle hevent) {
 #ifdef _MSC_VER
   // ResetEvent 返回非零表示成功
@@ -149,6 +153,7 @@ int event_reset(event_handle hevent) {
   return 0;
 #endif
 }
+
 void event_destroy(event_handle hevent) {
 #ifdef _MSC_VER
   CloseHandle(hevent);
