@@ -1,17 +1,17 @@
+#include <gtest/gtest.h>
+
 #include <iostream>
 
-#include "CustomThread.h"
+#include "Human.h"
 
-using namespace std;
+TEST(Human, sayHello) {
+  Human* human = new Human("k");
+  human->sendSayHelloSignal();
+  EXPECT_EQ(human->getSentence(), "Hello, k!");
+}
 
-int main(int, char**) {
-  CustomThread human("xiao ming");
-
-  while (1) {
-    human.sendSayHelloSignal();
-    human.sendTodoSignal("sleep");
-    human.sendSayGoodByeSignal();
-  }
-
-  return 0;
+TEST(Human, sayGoodBye) {
+  Human* human = new Human("k");
+  human->sendSayGoodByeSignal();
+  EXPECT_EQ(human->getSentence(), "GoodBye, k!");
 }

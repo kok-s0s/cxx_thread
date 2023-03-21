@@ -1,13 +1,11 @@
-#ifndef CUSTOMTHREAD_H_
-#define CUSTOMTHREAD_H_
+#ifndef Human_H_
+#define Human_H_
 #include <iostream>
 #include <string>
 
 #include "ThreadBase.hpp"
 
-using namespace std;
-
-class CustomThread : public ThreadBasic {
+class Human : public ThreadBasic {
   enum SignalID : int {
     SayHello_SignalID,
     ToDo_SignalID,
@@ -15,12 +13,11 @@ class CustomThread : public ThreadBasic {
   };
 
  private:
-  string _name;
+  std::string _name;
+  std::string _sentence;
 
   void sayHelloSlot();
-
-  void todoSlot(string something);
-
+  void todoSlot(std::string something);
   void sayGoodByeSlot();
 
  protected:
@@ -28,14 +25,13 @@ class CustomThread : public ThreadBasic {
       std::shared_ptr<ThreadMsg> threadMsg) override;
 
  public:
-  CustomThread(string name);
-  ~CustomThread();
+  Human(std::string name);
+  ~Human();
 
+  std::string getSentence();
   void sendSayHelloSignal();
-
-  void sendTodoSignal(string something);
-
+  void sendTodoSignal(std::string something);
   void sendSayGoodByeSignal();
 };
 
-#endif  // CUSTOMTHREAD_H_
+#endif  // Human_H_

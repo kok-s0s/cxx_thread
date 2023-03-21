@@ -25,58 +25,6 @@ class ThreadBasic {
   std::queue<std::shared_ptr<ThreadMsg>> _queue;
   bool _syncProcessed;
 
- public:
-  ThreadBasic(const ThreadBasic &) = delete;
-  ThreadBasic &operator=(const ThreadBasic &) = delete;
-  ThreadBasic() : _thread(nullptr) {}
-  ~ThreadBasic() { exitThread(); }
-
-  /**
-   * @brief get the ID of the currently executing thread
-   * @return the current thread ID
-   */
-  static std::thread::id getCurrentThreadId() {
-    return std::this_thread::get_id();
-  }
-
-  /**
-   * @brief get the ID of this thread instance
-   * @return the worker thread ID
-   */
-  std::thread::id getThreadId() {
-    if (_thread != nullptr)
-      return _thread->get_id();
-    else
-      return std::thread::id();
-  }
-
-  /**
-   * @brief called once to create the worker thread
-   * @return true if thread is created. False otherwise.
-   */
-  bool createThread() {
-    if (!_thread)
-      _thread = std::unique_ptr<std::thread>(
-          new std::thread(&ThreadBasic::process, this));
-    return true;
-  }
-
-  /**
-   * @brief called once a program exit to exit the worker thread
-   */
-  void exitThread() {
-    if (!_thread) return;
-
-    std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(-1, nullptr));
-    {
-      std::lock_guard<std::mutex> lock(_mutex);
-      _queue.push(threadMsg);
-      _cv.notify_one();
-    }
-    _thread->join();
-    _thread = nullptr;
-  }
-
  protected:
   /**
    * @brief post a message to the thread queue
@@ -133,5 +81,57 @@ class ThreadBasic {
    * @brief user custom function
    */
   virtual void userCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
+
+ public:
+  ThreadBasic(const ThreadBasic &) = delete;
+  ThreadBasic &operator=(const ThreadBasic &) = delete;
+  ThreadBasic() : _thread(nullptr) {}
+  ~ThreadBasic() { exitThread(); }
+
+  /**
+   * @brief get the ID of the currently executing thread
+   * @return the current thread ID
+   */
+  static std::thread::id getCurrentThreadId() {
+    return std::this_thread::get_id();
+  }
+
+  /**
+   * @brief get the ID of this thread instance
+   * @return the worker thread ID
+   */
+  std::thread::id getThreadId() {
+    if (_thread != nullptr)
+      return _thread->get_id();
+    else
+      return std::thread::id();
+  }
+
+  /**
+   * @brief called once to create the worker thread
+   * @return true if thread is created. False otherwise.
+   */
+  bool createThread() {
+    if (!_thread)
+      _thread = std::unique_ptr<std::thread>(
+          new std::thread(&ThreadBasic::process, this));
+    return true;
+  }
+
+  /**
+   * @brief called once a program exit to exit the worker thread
+   */
+  void exitThread() {
+    if (!_thread) return;
+
+    std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(-1, nullptr));
+    {
+      std::lock_guard<std::mutex> lock(_mutex);
+      _queue.push(threadMsg);
+      _cv.notify_one();
+    }
+    _thread->join();
+    _thread = nullptr;
+  }
 };
 #endif  // THREADBASE_HPP_
