@@ -6,18 +6,21 @@
 
 TEST(Human, sayHello) {
   Human* human = new Human("k");
-  human->sendSayHelloSignal();
-  EXPECT_EQ(human->getSentence(), "Hello, k!");
+  human->SendSayHelloSignal();
+  EXPECT_EQ(human->GetSentence(), "Hello, k!");
+  delete human;
 }
 
 TEST(Human, doWhat) {
   Human* human = new Human("k");
-  human->sendTodoSignal("sleep");
-  EXPECT_EQ(human->getSentence(), "I'm going to go to sleep");
+  human->SendTodoSignal("sleep");
+  EXPECT_EQ(human->GetSentence(), "I'm going to go to sleep");
+  delete human;
 }
 
 TEST(Human, sayGoodBye) {
   Human* human = new Human("k");
-  human->sendSayGoodByeSignal();
-  EXPECT_EQ(human->getSentence(), "GoodBye, k!");
+  human->SendSayGoodByeSignal();
+  EXPECT_EQ(human->GetSentence(), "GoodBye, k!");
+  delete human;
 }

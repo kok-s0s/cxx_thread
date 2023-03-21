@@ -3,9 +3,9 @@
 #include <iostream>
 #include <string>
 
-#include "ThreadBase.hpp"
+#include "ThreadBase.h"
 
-class Human : public ThreadBasic {
+class Human : public ThreadBase {
   enum SignalID : int {
     SayHello_SignalID,
     ToDo_SignalID,
@@ -16,22 +16,22 @@ class Human : public ThreadBasic {
   std::string _name;
   std::string _sentence;
 
-  void sayHelloSlot();
-  void todoSlot(std::string something);
-  void sayGoodByeSlot();
+  void SayHelloSlot();
+  void TodoSlot(std::string something);
+  void SayGoodByeSlot();
 
  protected:
-  virtual void userCustomFunction(
+  virtual void UserCustomFunction(
       std::shared_ptr<ThreadMsg> threadMsg) override;
 
  public:
   Human(std::string name);
   ~Human();
 
-  std::string getSentence();
-  void sendSayHelloSignal();
-  void sendTodoSignal(std::string something);
-  void sendSayGoodByeSignal();
+  std::string GetSentence();
+  void SendSayHelloSignal();
+  void SendTodoSignal(std::string something);
+  void SendSayGoodByeSignal();
 };
 
 #endif  // Human_H_

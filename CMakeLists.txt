@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(${PROJECT_NAME}
   main.cpp
+  ThreadBase.cpp
   Human.cpp
 )
 
