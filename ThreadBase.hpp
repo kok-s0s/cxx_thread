@@ -103,7 +103,7 @@ class ThreadBasic {
     _queue.push(threadMsg);
     _syncProcessed = false;
     _cv.notify_one();
-    _cv.wait(lk, [=] { return _syncProcessed; });
+    _cv.wait(lk, [this] { return _syncProcessed; });
   }
 
   /**
@@ -114,7 +114,7 @@ class ThreadBasic {
       std::shared_ptr<ThreadMsg> threadMsg;
       {
         std::unique_lock<std::mutex> lk(_mutex);
-        _cv.wait(lk, [=] { return !_queue.empty(); });
+        _cv.wait(lk, [this] { return !_queue.empty(); });
         if (_queue.empty()) continue;
         threadMsg = _queue.front();
         _queue.pop();

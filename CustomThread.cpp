@@ -1,29 +1,47 @@
 #include "CustomThread.h"
 
-CustomThread::CustomThread(string name) : _name(name) { createThread(); }
+void CustomThread::sayHelloSlot() { cout << "Hello! " << _name << endl; }
 
-CustomThread::~CustomThread() {}
+void CustomThread::todoSlot(string something) { cout << something << endl; }
 
-void CustomThread::sayHello() { cout << "Hello! " << _name << endl; }
-
-void CustomThread::todo(string something) {}
-
-void CustomThread::sayGoodBye() { cout << "GoodBye! " << _name << endl; }
+void CustomThread::sayGoodByeSlot() { cout << "GoodBye! " << _name << endl; }
 
 void CustomThread::userCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
   switch (threadMsg->_id) {
     case SayHello_SignalID: {
-      sayHello();
+      sayHelloSlot();
       break;
     }
     case ToDo_SignalID: {
       string something = *(std::static_pointer_cast<string>(threadMsg->_msg));
-      todo(something);
+      todoSlot(something);
       break;
     }
     case SayGoodBye_SignalID: {
-      sayGoodBye();
+      sayGoodByeSlot();
       break;
     }
   }
+}
+
+CustomThread::CustomThread(string name) : _name(name) { createThread(); }
+
+CustomThread::~CustomThread() {}
+
+void CustomThread::sendSayHelloSignal() {
+  std::shared_ptr<ThreadMsg> threadMsg(
+      new ThreadMsg(SayHello_SignalID, nullptr));
+  sendMsg(threadMsg);
+}
+
+void CustomThread::sendTodoSignal(string something) {
+  std::shared_ptr<string> msgData(new string(something));
+  std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(ToDo_SignalID, msgData));
+  sendMsg(threadMsg);
+}
+
+void CustomThread::sendSayGoodByeSignal() {
+  std::shared_ptr<ThreadMsg> threadMsg(
+      new ThreadMsg(SayGoodBye_SignalID, nullptr));
+  sendMsg(threadMsg);
 }

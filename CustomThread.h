@@ -17,19 +17,25 @@ class CustomThread : public ThreadBasic {
  private:
   string _name;
 
- public:
-  CustomThread(string name);
-  ~CustomThread();
+  void sayHelloSlot();
 
-  void sayHello();
+  void todoSlot(string something);
 
-  void todo(string something);
-
-  void sayGoodBye();
+  void sayGoodByeSlot();
 
  protected:
   virtual void userCustomFunction(
       std::shared_ptr<ThreadMsg> threadMsg) override;
+
+ public:
+  CustomThread(string name);
+  ~CustomThread();
+
+  void sendSayHelloSignal();
+
+  void sendTodoSignal(string something);
+
+  void sendSayGoodByeSignal();
 };
 
 #endif  // CUSTOMTHREAD_H_
