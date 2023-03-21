@@ -35,16 +35,17 @@ class Human : public ThreadBase {
   std::string _name;
   std::string _sentence;
 
+ protected:
+  virtual void UserCustomFunction(
+      std::shared_ptr<ThreadMsg> threadMsg) override;
+
+ private:
   void SayHelloSlot();
   void PlanToDoSlot(Plan plan);
   void WillDoSlot(std::string something);
   void AskAQuestion(Question question);
   void AnswerAQuestion(Answer answer);
   void SayGoodByeSlot();
-
- protected:
-  virtual void UserCustomFunction(
-      std::shared_ptr<ThreadMsg> threadMsg) override;
 
  public:
   Human(std::string name);
