@@ -21,6 +21,19 @@ void Human::AnswerAQuestion(Answer answer) {
 
 void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
 
+void Human::WantToSleepSlot() { _sentence = "I want to sleep"; }
+
+void Human::timerSlot() {
+  while (!_timerExit) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    countSayWantToSleep++;
+
+    std::shared_ptr<ThreadMsg> threadMsg(
+        new ThreadMsg(WantToSleep_SignalID, nullptr));
+    SendMsg(threadMsg);
+  }
+}
+
 void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
   switch (threadMsg->_id) {
     case SayHello_SignalID: {
@@ -50,6 +63,15 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
     }
     case SayGoodBye_SignalID: {
       SayGoodByeSlot();
+      break;
+    }
+    case WantToSleep_SignalID: {
+      WantToSleepSlot();
+      break;
+    }
+    case ExitTimer_SignalID: {
+      _timerThread->join();
+      _timerThread = nullptr;
       break;
     }
   }
@@ -109,4 +131,21 @@ void Human::SendSayGoodByeSignal() {
   std::shared_ptr<ThreadMsg> threadMsg(
       new ThreadMsg(SayGoodBye_SignalID, nullptr));
   SendMsg(threadMsg);
+}
+
+void Human::FellAsleep() {
+  if (_timerThread) {
+    _timerExit = true;
+    std::shared_ptr<ThreadMsg> threadMsg(
+        new ThreadMsg(ExitTimer_SignalID, nullptr));
+    PostMsg(threadMsg);
+  }
+}
+
+void Human::WakeUp() {
+  if (_timerThread == nullptr) {
+    _timerExit = false;
+    _timerThread =
+        std::unique_ptr<std::thread>(new std::thread(&Human::timerSlot, this));
+  }
 }

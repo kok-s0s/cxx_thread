@@ -29,11 +29,15 @@ class Human : public ThreadBase {
     AskAQuestion_SignalID,
     AnswerAQuestion_SignalID,
     SayGoodBye_SignalID,
+    WantToSleep_SignalID,
+    ExitTimer_SignalID
   };
 
  private:
   std::string _name;
   std::string _sentence;
+  bool _timerExit = false;
+  std::unique_ptr<std::thread> _timerThread;
 
  protected:
   virtual void UserCustomFunction(
@@ -46,6 +50,8 @@ class Human : public ThreadBase {
   void AskAQuestion(Question question);
   void AnswerAQuestion(Answer answer);
   void SayGoodByeSlot();
+  void WantToSleepSlot();
+  void timerSlot();
 
  public:
   Human(std::string name);
@@ -61,6 +67,13 @@ class Human : public ThreadBase {
   void SendAnswerAQuestionSignal(const std::string& questionerName,
                                  const std::string& content);
   void SendSayGoodByeSignal();
+
+ public:
+  int countSayWantToSleep = 0;
+
+ public:
+  void FellAsleep();
+  void WakeUp();
 };
 
 #endif  // Human_H_
