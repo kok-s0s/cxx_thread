@@ -50,9 +50,9 @@ TEST(Human, say_goodbye) {
 TEST(Human, want_to_sleep) {
   Human* human = new Human("k");
   human->WakeUp();
-  std::this_thread::sleep_for(std::chrono::milliseconds(5555));
+  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
   human->FellAsleep();
   EXPECT_EQ(human->countSayWantToSleep, 5);
-  EXPECT_EQ(human->GetSentence(), "I want to sleep");
-  // delete human;
+  EXPECT_EQ(human->GetSentence(), "I want to sleep.");
+  delete human;
 }

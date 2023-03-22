@@ -21,7 +21,7 @@ void Human::AnswerAQuestion(Answer answer) {
 
 void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
 
-void Human::WantToSleepSlot() { _sentence = "I want to sleep"; }
+void Human::WantToSleepSlot() { _sentence = "I want to sleep."; }
 
 void Human::timerSlot() {
   while (!_timerExit) {
@@ -30,7 +30,7 @@ void Human::timerSlot() {
 
     std::shared_ptr<ThreadMsg> threadMsg(
         new ThreadMsg(WantToSleep_SignalID, nullptr));
-    SendMsg(threadMsg);
+    PostMsg(threadMsg);
   }
 }
 
@@ -138,7 +138,7 @@ void Human::FellAsleep() {
     _timerExit = true;
     std::shared_ptr<ThreadMsg> threadMsg(
         new ThreadMsg(ExitTimer_SignalID, nullptr));
-    PostMsg(threadMsg);
+    SendMsg(threadMsg);
   }
 }
 
