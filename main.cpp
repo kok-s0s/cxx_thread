@@ -17,18 +17,19 @@ TEST(Human, plan_to_do) {
             "I plan to play the game from 9:00 to 13:00.");
 }
 
-TEST(Human, do_what) {
+TEST(Human, will_do) {
   std::unique_ptr<Human> human(new Human("k"));
   human->SendWillDoSignal("sleep");
   EXPECT_EQ(human->GetSentence(), "I'm going to go to sleep");
 }
 
-TEST(Human, interact) {
+TEST(Human, chat) {
   std::shared_ptr<Human> xiaoMing(new Human("xiaoMing"));
   std::shared_ptr<Human> xiaoHong(new Human("xiaoHong"));
   xiaoMing->SendAskAQuestionSignal(xiaoMing, xiaoHong, "Do you like cats?");
-  // xiaoHong->SendAnswerAQuestionSignal();
-  int a = 9;
+  xiaoHong->SendAnswerAQuestionSignal("Yes! I like!");
+  EXPECT_EQ(xiaoHong->GetQuestionFromOtherPeople(), "Do you like cats?");
+  EXPECT_EQ(xiaoMing->GetAnswerFromOtherPeople(), "Yes! I like!");
 }
 
 TEST(Human, say_goodbye) {

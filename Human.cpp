@@ -11,16 +11,19 @@ void Human::WillDoSlot(const std::string& doWhat) {
   _sentence = "I'm going to go to " + doWhat;
 }
 
-void Human::AskAQuestionSlot(Question& question) {
+void Human::AskAQuestionSlot(const Question& question) {
   _sentence = question.respondent->GetName() + ", " + question.content;
   question.respondent->SendGetAQuestionSignal(question);
 }
 
 void Human::GetAQuestionSlot(const Question& question) { _question = question; }
 
-void Human::AnswerAQuestionSlot(const Answer& answer) {
-  _sentence = answer.questionerName + ", " + answer.content;
+void Human::AnswerAQuestionSlot(const std::string& answer) {
+  _sentence = _question.questioner->GetName() + ", " + answer;
+  _question.questioner->SendGetAAnswerSignal(answer);
 }
+
+void Human::GetAAnswerSlot(const std::string& answer) { _answer = answer; }
 
 void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
 
@@ -65,8 +68,15 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
       break;
     }
     case AnswerAQuestion_SignalID: {
-      auto answer = *(std::static_pointer_cast<Answer>(threadMsg->_msg));
+      std::string answer =
+          *(std::static_pointer_cast<std::string>(threadMsg->_msg));
       AnswerAQuestionSlot(answer);
+      break;
+    }
+    case GetAAnswer_SignalID: {
+      std::string answer =
+          *(std::static_pointer_cast<std::string>(threadMsg->_msg));
+      GetAAnswerSlot(answer);
       break;
     }
     case SayGoodBye_SignalID: {
@@ -94,6 +104,9 @@ std::string Human::GetName() { return _name; }
 void Human::SetName(const std::string name) { _name = name; }
 
 std::string Human::GetSentence() { return _sentence; }
+
+std::string Human::GetQuestionFromOtherPeople() { return _question.content; }
+std::string Human::GetAnswerFromOtherPeople() { return _answer; }
 
 void Human::SendSayHelloSignal() {
   std::shared_ptr<ThreadMsg> threadMsg(
@@ -138,13 +151,17 @@ void Human::SendGetAQuestionSignal(Question question) {
   SendMsg(threadMsg);
 }
 
-void Human::SendAnswerAQuestionSignal(const std::string& questionerName,
-                                      const std::string& content) {
-  std::shared_ptr<Answer> msgData(new Answer());
-  msgData->questionerName = questionerName;
-  msgData->content = content;
+void Human::SendAnswerAQuestionSignal(const std::string& answer) {
+  std::shared_ptr<std::string> msgData(new std::string(answer));
   std::shared_ptr<ThreadMsg> threadMsg(
       new ThreadMsg(AnswerAQuestion_SignalID, msgData));
+  SendMsg(threadMsg);
+}
+
+void Human::SendGetAAnswerSignal(const std::string& answer) {
+  std::shared_ptr<std::string> msgData(new std::string(answer));
+  std::shared_ptr<ThreadMsg> threadMsg(
+      new ThreadMsg(GetAAnswer_SignalID, msgData));
   SendMsg(threadMsg);
 }
 

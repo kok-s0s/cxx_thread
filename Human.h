@@ -18,11 +18,6 @@ class Human : public ThreadBase {
     std::string content;
   };
 
-  struct Answer {
-    std::string questionerName;
-    std::string content;
-  };
-
   enum SignalID : int {
     SayHello_SignalID,
     PlanToDo_SignalID,
@@ -30,6 +25,7 @@ class Human : public ThreadBase {
     AskAQuestion_SignalID,
     GetAQuestion_SignalID,
     AnswerAQuestion_SignalID,
+    GetAAnswer_SignalID,
     SayGoodBye_SignalID,
     WantToSleep_SignalID,
     ExitTimer_SignalID
@@ -38,6 +34,7 @@ class Human : public ThreadBase {
  private:
   std::string _name;
   std::string _sentence;
+  std::string _answer;
   Question _question;
   std::unique_ptr<std::thread> _timerThread;
   bool _exitTimer = false;
@@ -50,9 +47,10 @@ class Human : public ThreadBase {
   void SayHelloSlot();
   void PlanToDoSlot(const Plan& plan);
   void WillDoSlot(const std::string& something);
-  void AskAQuestionSlot(Question& question);
+  void AskAQuestionSlot(const Question& question);
   void GetAQuestionSlot(const Question& question);
-  void AnswerAQuestionSlot(const Answer& answer);
+  void AnswerAQuestionSlot(const std::string& answer);
+  void GetAAnswerSlot(const std::string& answer);
   void SayGoodByeSlot();
   void WantToSleepSlot();
   void TimerSlot();
@@ -63,6 +61,8 @@ class Human : public ThreadBase {
   std::string GetName();
   void SetName(const std::string name);
   std::string GetSentence();
+  std::string GetQuestionFromOtherPeople();
+  std::string GetAnswerFromOtherPeople();
   void SendSayHelloSignal();
   void SendPlanToDoSignal(const std::string& startTime,
                           const std::string& endTime, const std::string& event);
@@ -71,8 +71,8 @@ class Human : public ThreadBase {
                               std::shared_ptr<Human>& respondent,
                               const std::string& content);
   void SendGetAQuestionSignal(Question question);
-  void SendAnswerAQuestionSignal(const std::string& questionerName,
-                                 const std::string& content);
+  void SendAnswerAQuestionSignal(const std::string& answer);
+  void SendGetAAnswerSignal(const std::string& answer);
   void SendSayGoodByeSignal();
 
  public:
