@@ -11,11 +11,13 @@ void Human::WillDoSlot(const std::string& doWhat) {
   _sentence = "I'm going to go to " + doWhat;
 }
 
-void Human::AskAQuestion(const Question& question) {
+void Human::AskAQuestionSlot(const Question& question) {
   _sentence = question.respondentName + ", " + question.content;
 }
 
-void Human::AnswerAQuestion(const Answer& answer) {
+void Human::AskAQuestionSlot(Human* human, const Question& question) {}
+
+void Human::AnswerAQuestionSlot(const Answer& answer) {
   _sentence = answer.questionerName + ", " + answer.content;
 }
 
@@ -23,8 +25,8 @@ void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
 
 void Human::WantToSleepSlot() { _sentence = "I want to sleep."; }
 
-void Human::timerSlot() {
-  while (!_timerExit) {
+void Human::TimerSlot() {
+  while (!_exitTimer) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     countSayWantToSleep++;
 
@@ -53,12 +55,12 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
     }
     case AskAQuestion_SignalID: {
       auto question = *(std::static_pointer_cast<Question>(threadMsg->_msg));
-      AskAQuestion(question);
+      AskAQuestionSlot(question);
       break;
     }
     case AnswerAQuestion_SignalID: {
       auto answer = *(std::static_pointer_cast<Answer>(threadMsg->_msg));
-      AnswerAQuestion(answer);
+      AnswerAQuestionSlot(answer);
       break;
     }
     case SayGoodBye_SignalID: {
@@ -80,6 +82,10 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
 Human::Human(std::string name) : _name(name), _sentence("") { CreateThread(); }
 
 Human::~Human() {}
+
+std::string Human::GetName() { return _name; }
+
+void Human::SetName(const std::string name) { _name = name; }
 
 std::string Human::GetSentence() { return _sentence; }
 
@@ -133,19 +139,19 @@ void Human::SendSayGoodByeSignal() {
   SendMsg(threadMsg);
 }
 
-void Human::FellAsleep() {
-  if (_timerThread) {
-    _timerExit = true;
-    std::shared_ptr<ThreadMsg> threadMsg(
-        new ThreadMsg(ExitTimer_SignalID, nullptr));
-    SendMsg(threadMsg);
+void Human::WakeUp() {
+  if (_timerThread == nullptr) {
+    _exitTimer = false;
+    _timerThread =
+        std::unique_ptr<std::thread>(new std::thread(&Human::TimerSlot, this));
   }
 }
 
-void Human::WakeUp() {
-  if (_timerThread == nullptr) {
-    _timerExit = false;
-    _timerThread =
-        std::unique_ptr<std::thread>(new std::thread(&Human::timerSlot, this));
+void Human::FellAsleep() {
+  if (_timerThread != nullptr) {
+    _exitTimer = true;
+    std::shared_ptr<ThreadMsg> threadMsg(
+        new ThreadMsg(ExitTimer_SignalID, nullptr));
+    SendMsg(threadMsg);
   }
 }

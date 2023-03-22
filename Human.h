@@ -36,8 +36,8 @@ class Human : public ThreadBase {
  private:
   std::string _name;
   std::string _sentence;
-  bool _timerExit = false;
   std::unique_ptr<std::thread> _timerThread;
+  bool _exitTimer = false;
 
  protected:
   virtual void UserCustomFunction(
@@ -47,16 +47,18 @@ class Human : public ThreadBase {
   void SayHelloSlot();
   void PlanToDoSlot(const Plan& plan);
   void WillDoSlot(const std::string& something);
-  void AskAQuestion(const Question& question);
-  void AnswerAQuestion(const Answer& answer);
+  void AskAQuestionSlot(const Question& question);
+  void AskAQuestionSlot(Human* human, const Question& question);
+  void AnswerAQuestionSlot(const Answer& answer);
   void SayGoodByeSlot();
   void WantToSleepSlot();
-  void timerSlot();
+  void TimerSlot();
 
  public:
   Human(std::string name);
   ~Human();
-
+  std::string GetName();
+  void SetName(const std::string name);
   std::string GetSentence();
   void SendSayHelloSignal();
   void SendPlanToDoSignal(const std::string& startTime,
@@ -72,8 +74,8 @@ class Human : public ThreadBase {
   int countSayWantToSleep = 0;
 
  public:
-  void FellAsleep();
   void WakeUp();
+  void FellAsleep();
 };
 
 #endif  // Human_H_
