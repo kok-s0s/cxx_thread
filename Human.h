@@ -13,7 +13,8 @@ class Human : public ThreadBase {
   };
 
   struct Question {
-    std::string respondentName;
+    std::shared_ptr<Human> questioner;
+    std::shared_ptr<Human> respondent;
     std::string content;
   };
 
@@ -27,6 +28,7 @@ class Human : public ThreadBase {
     PlanToDo_SignalID,
     WillDo_SignalID,
     AskAQuestion_SignalID,
+    GetAQuestion_SignalID,
     AnswerAQuestion_SignalID,
     SayGoodBye_SignalID,
     WantToSleep_SignalID,
@@ -36,6 +38,7 @@ class Human : public ThreadBase {
  private:
   std::string _name;
   std::string _sentence;
+  Question _question;
   std::unique_ptr<std::thread> _timerThread;
   bool _exitTimer = false;
 
@@ -47,8 +50,8 @@ class Human : public ThreadBase {
   void SayHelloSlot();
   void PlanToDoSlot(const Plan& plan);
   void WillDoSlot(const std::string& something);
-  void AskAQuestionSlot(const Question& question);
-  void AskAQuestionSlot(Human* human, const Question& question);
+  void AskAQuestionSlot(Question& question);
+  void GetAQuestionSlot(const Question& question);
   void AnswerAQuestionSlot(const Answer& answer);
   void SayGoodByeSlot();
   void WantToSleepSlot();
@@ -64,8 +67,10 @@ class Human : public ThreadBase {
   void SendPlanToDoSignal(const std::string& startTime,
                           const std::string& endTime, const std::string& event);
   void SendWillDoSignal(const std::string& doWhat);
-  void SendAskAQuestionSignal(const std::string& respondentName,
+  void SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
+                              std::shared_ptr<Human>& respondent,
                               const std::string& content);
+  void SendGetAQuestionSignal(Question question);
   void SendAnswerAQuestionSignal(const std::string& questionerName,
                                  const std::string& content);
   void SendSayGoodByeSignal();

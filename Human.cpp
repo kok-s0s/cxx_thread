@@ -11,11 +11,12 @@ void Human::WillDoSlot(const std::string& doWhat) {
   _sentence = "I'm going to go to " + doWhat;
 }
 
-void Human::AskAQuestionSlot(const Question& question) {
-  _sentence = question.respondentName + ", " + question.content;
+void Human::AskAQuestionSlot(Question& question) {
+  _sentence = question.respondent->GetName() + ", " + question.content;
+  question.respondent->SendGetAQuestionSignal(question);
 }
 
-void Human::AskAQuestionSlot(Human* human, const Question& question) {}
+void Human::GetAQuestionSlot(const Question& question) { _question = question; }
 
 void Human::AnswerAQuestionSlot(const Answer& answer) {
   _sentence = answer.questionerName + ", " + answer.content;
@@ -56,6 +57,11 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
     case AskAQuestion_SignalID: {
       auto question = *(std::static_pointer_cast<Question>(threadMsg->_msg));
       AskAQuestionSlot(question);
+      break;
+    }
+    case GetAQuestion_SignalID: {
+      auto question = *(std::static_pointer_cast<Question>(threadMsg->_msg));
+      GetAQuestionSlot(question);
       break;
     }
     case AnswerAQuestion_SignalID: {
@@ -113,13 +119,22 @@ void Human::SendWillDoSignal(const std::string& doWhat) {
   SendMsg(threadMsg);
 }
 
-void Human::SendAskAQuestionSignal(const std::string& respondentName,
+void Human::SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
+                                   std::shared_ptr<Human>& respondent,
                                    const std::string& content) {
   std::shared_ptr<Question> msgData(new Question());
-  msgData->respondentName = respondentName;
+  msgData->questioner = questioner;
+  msgData->respondent = respondent;
   msgData->content = content;
   std::shared_ptr<ThreadMsg> threadMsg(
       new ThreadMsg(AskAQuestion_SignalID, msgData));
+  SendMsg(threadMsg);
+}
+
+void Human::SendGetAQuestionSignal(Question question) {
+  std::shared_ptr<Question> msgData(new Question(question));
+  std::shared_ptr<ThreadMsg> threadMsg(
+      new ThreadMsg(GetAQuestion_SignalID, msgData));
   SendMsg(threadMsg);
 }
 

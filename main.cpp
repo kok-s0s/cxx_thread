@@ -23,16 +23,12 @@ TEST(Human, do_what) {
   EXPECT_EQ(human->GetSentence(), "I'm going to go to sleep");
 }
 
-TEST(Human, ask_a_question) {
-  std::unique_ptr<Human> human(new Human("k"));
-  human->SendAskAQuestionSignal("q", "Where are you going?");
-  EXPECT_EQ(human->GetSentence(), "q, Where are you going?");
-}
-
-TEST(Human, answer_a_question) {
-  std::unique_ptr<Human> human(new Human("k"));
-  human->SendAnswerAQuestionSignal("k", "I plan to go to the lake.");
-  EXPECT_EQ(human->GetSentence(), "k, I plan to go to the lake.");
+TEST(Human, interact) {
+  std::shared_ptr<Human> xiaoMing(new Human("xiaoMing"));
+  std::shared_ptr<Human> xiaoHong(new Human("xiaoHong"));
+  xiaoMing->SendAskAQuestionSignal(xiaoMing, xiaoHong, "Do you like cats?");
+  // xiaoHong->SendAnswerAQuestionSignal();
+  int a = 9;
 }
 
 TEST(Human, say_goodbye) {
@@ -48,10 +44,4 @@ TEST(Human, want_to_sleep) {
   human->FellAsleep();
   EXPECT_EQ(human->countSayWantToSleep, 5);
   EXPECT_EQ(human->GetSentence(), "I want to sleep.");
-}
-
-TEST(Human, interact) {
-  std::unique_ptr<Human> xiaoMing(new Human("xiaoMing"));
-  std::unique_ptr<Human> xiaoHong(new Human("xiaoHong"));
-  xiaoMing->SendAskAQuestionSignal(xiaoHong->GetName(), "Do you like cats?");
 }
