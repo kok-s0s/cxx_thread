@@ -1,5 +1,7 @@
 #include "Human.h"
 
+#pragma region private_slot_function
+
 void Human::SayHelloSlot() { _sentence = "Hello, " + _name + "!"; }
 
 void Human::PlanToDoSlot(const Plan& plan) {
@@ -39,6 +41,8 @@ void Human::TimerSlot() {
     PostMsg(threadMsg);
   }
 }
+
+#pragma endregion
 
 void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
   switch (threadMsg->_id) {
@@ -99,6 +103,8 @@ Human::Human(std::string name) : _name(name), _sentence("") { CreateThread(); }
 
 Human::~Human() {}
 
+#pragma region public_member_function_to_control_private_variable_value
+
 std::string Human::GetName() { return _name; }
 
 void Human::SetName(const std::string name) { _name = name; }
@@ -106,7 +112,12 @@ void Human::SetName(const std::string name) { _name = name; }
 std::string Human::GetSentence() { return _sentence; }
 
 std::string Human::GetQuestionFromOtherPeople() { return _question.content; }
+
 std::string Human::GetAnswerFromOtherPeople() { return _answer; }
+
+#pragma endregion
+
+#pragma region public_function_to_send_signal
 
 void Human::SendSayHelloSignal() {
   std::shared_ptr<ThreadMsg> threadMsg(
@@ -171,6 +182,10 @@ void Human::SendSayGoodByeSignal() {
   SendMsg(threadMsg);
 }
 
+#pragma endregion
+
+#pragma region public_function_to_control_timer
+
 void Human::WakeUp() {
   if (_timerThread == nullptr) {
     _exitTimer = false;
@@ -187,3 +202,5 @@ void Human::FellAsleep() {
     SendMsg(threadMsg);
   }
 }
+
+#pragma endregion
