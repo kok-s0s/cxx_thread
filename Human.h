@@ -45,10 +45,10 @@ class Human : public ThreadBase {
 
  private:
   void SayHelloSlot();
-  void PlanToDoSlot(Plan plan);
-  void WillDoSlot(std::string something);
-  void AskAQuestion(Question question);
-  void AnswerAQuestion(Answer answer);
+  void PlanToDoSlot(const Plan& plan);
+  void WillDoSlot(const std::string& something);
+  void AskAQuestion(const Question& question);
+  void AnswerAQuestion(const Answer& answer);
   void SayGoodByeSlot();
   void WantToSleepSlot();
   void timerSlot();

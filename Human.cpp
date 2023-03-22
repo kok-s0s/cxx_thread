@@ -2,20 +2,20 @@
 
 void Human::SayHelloSlot() { _sentence = "Hello, " + _name + "!"; }
 
-void Human::PlanToDoSlot(Plan plan) {
+void Human::PlanToDoSlot(const Plan& plan) {
   _sentence = "I plan to " + plan.event + " from " + plan.startTime + " to " +
               plan.endTime + ".";
 }
 
-void Human::WillDoSlot(std::string doWhat) {
+void Human::WillDoSlot(const std::string& doWhat) {
   _sentence = "I'm going to go to " + doWhat;
 }
 
-void Human::AskAQuestion(Question question) {
+void Human::AskAQuestion(const Question& question) {
   _sentence = question.respondentName + ", " + question.content;
 }
 
-void Human::AnswerAQuestion(Answer answer) {
+void Human::AnswerAQuestion(const Answer& answer) {
   _sentence = answer.questionerName + ", " + answer.content;
 }
 
