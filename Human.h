@@ -6,7 +6,6 @@
 #include "ThreadBase.h"
 
 class Human : public ThreadBase {
- private:
   struct Plan {
     std::string startTime;
     std::string endTime;
@@ -31,26 +30,6 @@ class Human : public ThreadBase {
     WantToSleep_SignalID,
     ExitTimer_SignalID
   };
-
- private:
-  std::string _name;
-  std::string _sentence;
-  std::string _answer;
-  Question _question;
-  std::unique_ptr<std::thread> _timerThread;
-  bool _exitTimer = false;
-
- private:
-  void SayHelloSlot();
-  void SayGoodByeSlot();
-  void WillDoSlot(const std::string& something);
-  void PlanToDoSlot(const Plan& plan);
-  void AskAQuestionSlot(const Question& question);
-  void GetAQuestionSlot(const Question& question);
-  void AnswerAQuestionSlot(const std::string& answer);
-  void GetAAnswerSlot(const std::string& answer);
-  void WantToSleepSlot();
-  void TimerSlot();
 
  public:
   Human(std::string name);
@@ -82,6 +61,26 @@ class Human : public ThreadBase {
  protected:
   virtual void UserCustomFunction(
       std::shared_ptr<ThreadMsg> threadMsg) override;
+
+ private:
+  void SayHelloSlot();
+  void SayGoodByeSlot();
+  void WillDoSlot(const std::string& something);
+  void PlanToDoSlot(const Plan& plan);
+  void AskAQuestionSlot(const Question& question);
+  void GetAQuestionSlot(const Question& question);
+  void AnswerAQuestionSlot(const std::string& answer);
+  void GetAAnswerSlot(const std::string& answer);
+  void WantToSleepSlot();
+  void TimerSlot();
+
+ private:
+  std::string _name;
+  std::string _sentence;
+  std::string _answer;
+  Question _question;
+  std::unique_ptr<std::thread> _timerThread;
+  bool _exitTimer = false;
 };
 
 #endif  // Human_H_

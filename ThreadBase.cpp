@@ -14,8 +14,9 @@ bool ThreadBase::CreateThread() {
 void ThreadBase::ExitThread() {
   if (!_thread) return;
 
-  // Create a new ThreadMsg
-  std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(Exit_SignalID, nullptr));
+  // Create a ThreadMsg
+  std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
+      Exit_SignalID, std::shared_ptr<void>(nullptr));
 
   // Put exit thread message into the queue
   {
