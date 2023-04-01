@@ -24,24 +24,6 @@ struct ThreadMsg {
 };
 
 class ThreadBase {
- private:
-  const int Exit_SignalID = -1;
-
- private:
-  std::unique_ptr<std::thread> _thread;
-  std::mutex _mutex;
-  std::condition_variable _cv;
-  std::queue<std::shared_ptr<ThreadMsg>> _queue;
-  bool _syncProcessed;
-
- protected:
-  /// Build the relationship between the signal and the slot
-  virtual void UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
-
- private:
-  /// Entry point for the worker thread
-  void Process();
-
  public:
   ThreadBase(const ThreadBase &) = delete;
   ThreadBase &operator=(const ThreadBase &) = delete;
@@ -67,8 +49,6 @@ class ThreadBase {
   /// @return The current thread ID
   static std::thread::id GetCurrentThreadId();
 
-  void PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait);
-
   /// Post a message to the thread queue
   /// @param[in] data - thread specific message information
   void PostMsg(std::shared_ptr<ThreadMsg> threadMsg);
@@ -76,6 +56,27 @@ class ThreadBase {
   /// Send a message to the thread queue
   /// @param[in] data - thread specific message information
   void SendMsg(std::shared_ptr<ThreadMsg> threadMsg);
+
+ protected:
+  /// Build the relationship between the signal and the slot
+  virtual void UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
+
+ private:
+  /// Entry point for the worker thread
+  void Process();
+
+  /// Post or send a message to the thread queue
+  void PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait);
+
+ private:
+  const int Exit_SignalID = -1;
+
+ private:
+  std::unique_ptr<std::thread> _thread;
+  std::mutex _mutex;
+  std::condition_variable _cv;
+  std::queue<std::shared_ptr<ThreadMsg>> _queue;
+  bool _syncProcessed = false;
 };
 
 #endif  // THREADBASE_H_
