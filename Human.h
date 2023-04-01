@@ -6,6 +6,7 @@
 #include "ThreadBase.h"
 
 class Human : public ThreadBase {
+ private:
   struct Plan {
     std::string startTime;
     std::string endTime;
@@ -20,13 +21,13 @@ class Human : public ThreadBase {
 
   enum SignalID : int {
     SayHello_SignalID,
-    PlanToDo_SignalID,
+    SayGoodBye_SignalID,
     WillDo_SignalID,
+    PlanToDo_SignalID,
     AskAQuestion_SignalID,
     GetAQuestion_SignalID,
     AnswerAQuestion_SignalID,
     GetAAnswer_SignalID,
-    SayGoodBye_SignalID,
     WantToSleep_SignalID,
     ExitTimer_SignalID
   };
@@ -39,19 +40,15 @@ class Human : public ThreadBase {
   std::unique_ptr<std::thread> _timerThread;
   bool _exitTimer = false;
 
- protected:
-  virtual void UserCustomFunction(
-      std::shared_ptr<ThreadMsg> threadMsg) override;
-
  private:
   void SayHelloSlot();
-  void PlanToDoSlot(const Plan& plan);
+  void SayGoodByeSlot();
   void WillDoSlot(const std::string& something);
+  void PlanToDoSlot(const Plan& plan);
   void AskAQuestionSlot(const Question& question);
   void GetAQuestionSlot(const Question& question);
   void AnswerAQuestionSlot(const std::string& answer);
   void GetAAnswerSlot(const std::string& answer);
-  void SayGoodByeSlot();
   void WantToSleepSlot();
   void TimerSlot();
 
@@ -64,16 +61,16 @@ class Human : public ThreadBase {
   std::string GetQuestionFromOtherPeople();
   std::string GetAnswerFromOtherPeople();
   void SendSayHelloSignal();
+  void SendSayGoodByeSignal();
+  void SendWillDoSignal(const std::string& doWhat);
   void SendPlanToDoSignal(const std::string& startTime,
                           const std::string& endTime, const std::string& event);
-  void SendWillDoSignal(const std::string& doWhat);
   void SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
                               std::shared_ptr<Human>& respondent,
                               const std::string& content);
   void SendGetAQuestionSignal(Question question);
   void SendAnswerAQuestionSignal(const std::string& answer);
   void SendGetAAnswerSignal(const std::string& answer);
-  void SendSayGoodByeSignal();
 
  public:
   int countSayWantToSleep = 0;
@@ -81,6 +78,10 @@ class Human : public ThreadBase {
  public:
   void WakeUp();
   void FellAsleep();
+
+ protected:
+  virtual void UserCustomFunction(
+      std::shared_ptr<ThreadMsg> threadMsg) override;
 };
 
 #endif  // Human_H_

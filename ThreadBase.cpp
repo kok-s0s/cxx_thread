@@ -13,13 +13,13 @@ void ThreadBase::Process() {
       _queue.pop();
     }
 
-    if (threadMsg->_id == exit_SignalID) {
+    if (threadMsg->GetId() == Exit_SignalID) {
       break;
     }
 
     UserCustomFunction(threadMsg);
 
-    if (threadMsg->_wait) {
+    if (threadMsg->GetWait()) {
       _syncProcessed = true;
       _cv.notify_one();
     }
@@ -41,7 +41,7 @@ void ThreadBase::ExitThread() {
   if (!_thread) return;
 
   // Create a new ThreadMsg
-  std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(exit_SignalID, nullptr));
+  std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(Exit_SignalID, nullptr));
 
   // Put exit thread message into the queue
   {
@@ -64,28 +64,28 @@ std::thread::id ThreadBase::GetCurrentThreadId() {
   return std::this_thread::get_id();
 }
 
-void ThreadBase::PostMsg(std::shared_ptr<ThreadMsg> threadMsg) {
+void ThreadBase::PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg,
+                               bool wait) {
   if (!_thread) return;
 
-  threadMsg->_wait = false;
+  threadMsg->SetWait(wait);
 
   // Add msg to queue and notify worker thread
   std::unique_lock<std::mutex> lk(_mutex);
   _queue.push(threadMsg);
   _cv.notify_one();
+
+  if (wait) {
+    _syncProcessed = false;
+    // Wait for the synchronization process to be true
+    _cv.wait(lk, [this] { return _syncProcessed; });
+  }
+}
+
+void ThreadBase::PostMsg(std::shared_ptr<ThreadMsg> threadMsg) {
+  PostOrSendMsg(threadMsg, false);
 }
 
 void ThreadBase::SendMsg(std::shared_ptr<ThreadMsg> threadMsg) {
-  if (!_thread) return;
-
-  threadMsg->_wait = true;
-  _syncProcessed = false;
-
-  // Add msg to queue and notify worker thread
-  std::unique_lock<std::mutex> lk(_mutex);
-  _queue.push(threadMsg);
-  _cv.notify_one();
-
-  // Wait for the synchronization process to be true
-  _cv.wait(lk, [this] { return _syncProcessed; });
+  PostOrSendMsg(threadMsg, true);
 }

@@ -4,13 +4,15 @@
 
 void Human::SayHelloSlot() { _sentence = "Hello, " + _name + "!"; }
 
-void Human::PlanToDoSlot(const Plan& plan) {
-  _sentence = "I plan to " + plan.event + " from " + plan.startTime + " to " +
-              plan.endTime + ".";
-}
+void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
 
 void Human::WillDoSlot(const std::string& doWhat) {
   _sentence = "I'm going to go to " + doWhat;
+}
+
+void Human::PlanToDoSlot(const Plan& plan) {
+  _sentence = "I plan to " + plan.event + " from " + plan.startTime + " to " +
+              plan.endTime + ".";
 }
 
 void Human::AskAQuestionSlot(const Question& question) {
@@ -27,8 +29,6 @@ void Human::AnswerAQuestionSlot(const std::string& answer) {
 
 void Human::GetAAnswerSlot(const std::string& answer) { _answer = answer; }
 
-void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
-
 void Human::WantToSleepSlot() { _sentence = "I want to sleep."; }
 
 void Human::TimerSlot() {
@@ -43,61 +43,6 @@ void Human::TimerSlot() {
 }
 
 #pragma endregion
-
-void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
-  switch (threadMsg->_id) {
-    case SayHello_SignalID: {
-      SayHelloSlot();
-      break;
-    }
-    case PlanToDo_SignalID: {
-      auto plan = *(std::static_pointer_cast<Plan>(threadMsg->_msg));
-      PlanToDoSlot(plan);
-      break;
-    }
-    case WillDo_SignalID: {
-      std::string doWhat =
-          *(std::static_pointer_cast<std::string>(threadMsg->_msg));
-      WillDoSlot(doWhat);
-      break;
-    }
-    case AskAQuestion_SignalID: {
-      auto question = *(std::static_pointer_cast<Question>(threadMsg->_msg));
-      AskAQuestionSlot(question);
-      break;
-    }
-    case GetAQuestion_SignalID: {
-      auto question = *(std::static_pointer_cast<Question>(threadMsg->_msg));
-      GetAQuestionSlot(question);
-      break;
-    }
-    case AnswerAQuestion_SignalID: {
-      std::string answer =
-          *(std::static_pointer_cast<std::string>(threadMsg->_msg));
-      AnswerAQuestionSlot(answer);
-      break;
-    }
-    case GetAAnswer_SignalID: {
-      std::string answer =
-          *(std::static_pointer_cast<std::string>(threadMsg->_msg));
-      GetAAnswerSlot(answer);
-      break;
-    }
-    case SayGoodBye_SignalID: {
-      SayGoodByeSlot();
-      break;
-    }
-    case WantToSleep_SignalID: {
-      WantToSleepSlot();
-      break;
-    }
-    case ExitTimer_SignalID: {
-      _timerThread->join();
-      _timerThread = nullptr;
-      break;
-    }
-  }
-}
 
 Human::Human(std::string name) : _name(name), _sentence("") { CreateThread(); }
 
@@ -125,6 +70,18 @@ void Human::SendSayHelloSignal() {
   SendMsg(threadMsg);
 }
 
+void Human::SendSayGoodByeSignal() {
+  std::shared_ptr<ThreadMsg> threadMsg(
+      new ThreadMsg(SayGoodBye_SignalID, nullptr));
+  SendMsg(threadMsg);
+}
+
+void Human::SendWillDoSignal(const std::string& doWhat) {
+  std::shared_ptr<std::string> msgData(new std::string(doWhat));
+  std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(WillDo_SignalID, msgData));
+  SendMsg(threadMsg);
+}
+
 void Human::SendPlanToDoSignal(const std::string& startTime,
                                const std::string& endTime,
                                const std::string& event) {
@@ -134,12 +91,6 @@ void Human::SendPlanToDoSignal(const std::string& startTime,
   msgData->event = event;
   std::shared_ptr<ThreadMsg> threadMsg(
       new ThreadMsg(PlanToDo_SignalID, msgData));
-  SendMsg(threadMsg);
-}
-
-void Human::SendWillDoSignal(const std::string& doWhat) {
-  std::shared_ptr<std::string> msgData(new std::string(doWhat));
-  std::shared_ptr<ThreadMsg> threadMsg(new ThreadMsg(WillDo_SignalID, msgData));
   SendMsg(threadMsg);
 }
 
@@ -176,12 +127,6 @@ void Human::SendGetAAnswerSignal(const std::string& answer) {
   SendMsg(threadMsg);
 }
 
-void Human::SendSayGoodByeSignal() {
-  std::shared_ptr<ThreadMsg> threadMsg(
-      new ThreadMsg(SayGoodBye_SignalID, nullptr));
-  SendMsg(threadMsg);
-}
-
 #pragma endregion
 
 #pragma region public_function_to_control_timer
@@ -204,3 +149,60 @@ void Human::FellAsleep() {
 }
 
 #pragma endregion
+
+void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
+  switch (threadMsg->GetId()) {
+    case SayHello_SignalID: {
+      SayHelloSlot();
+      break;
+    }
+    case SayGoodBye_SignalID: {
+      SayGoodByeSlot();
+      break;
+    }
+    case WillDo_SignalID: {
+      std::string doWhat =
+          *(std::static_pointer_cast<std::string>(threadMsg->GetMsg()));
+      WillDoSlot(doWhat);
+      break;
+    }
+    case PlanToDo_SignalID: {
+      auto plan = *(std::static_pointer_cast<Plan>(threadMsg->GetMsg()));
+      PlanToDoSlot(plan);
+      break;
+    }
+    case AskAQuestion_SignalID: {
+      auto question =
+          *(std::static_pointer_cast<Question>(threadMsg->GetMsg()));
+      AskAQuestionSlot(question);
+      break;
+    }
+    case GetAQuestion_SignalID: {
+      auto question =
+          *(std::static_pointer_cast<Question>(threadMsg->GetMsg()));
+      GetAQuestionSlot(question);
+      break;
+    }
+    case AnswerAQuestion_SignalID: {
+      std::string answer =
+          *(std::static_pointer_cast<std::string>(threadMsg->GetMsg()));
+      AnswerAQuestionSlot(answer);
+      break;
+    }
+    case GetAAnswer_SignalID: {
+      std::string answer =
+          *(std::static_pointer_cast<std::string>(threadMsg->GetMsg()));
+      GetAAnswerSlot(answer);
+      break;
+    }
+    case WantToSleep_SignalID: {
+      WantToSleepSlot();
+      break;
+    }
+    case ExitTimer_SignalID: {
+      _timerThread->join();
+      _timerThread = nullptr;
+      break;
+    }
+  }
+}
