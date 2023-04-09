@@ -21,7 +21,7 @@ void ThreadBase::ExitThread() {
   // Put exit thread message into the queue
   {
     std::lock_guard<std::mutex> lock(_mutex);
-    _queue.push(threadMsg);
+    _queue.emplace(threadMsg);
     _cv.notify_one();
   }
   _thread->join();
@@ -50,6 +50,24 @@ void ThreadBase::SendMsg(std::shared_ptr<ThreadMsg> threadMsg) {
   }
 }
 
+void ThreadBase::PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg,
+                               bool wait) {
+  if (!_thread) return;
+
+  threadMsg->SetWait(wait);
+
+  // Add msg to queue and notify worker thread
+  std::unique_lock<std::mutex> lk(_mutex);
+  _queue.emplace(std::move(threadMsg));
+  _cv.notify_one();
+
+  if (wait) {
+    _syncProcessed = false;
+    // Wait for the synchronization process to be true
+    _cv.wait(lk, [this] { return _syncProcessed; });
+  }
+}
+
 void ThreadBase::Process() {
   std::shared_ptr<ThreadMsg> threadMsg;
   while (1) {
@@ -72,23 +90,5 @@ void ThreadBase::Process() {
       _syncProcessed = true;
       _cv.notify_one();
     }
-  }
-}
-
-void ThreadBase::PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg,
-                               bool wait) {
-  if (!_thread) return;
-
-  threadMsg->SetWait(wait);
-
-  // Add msg to queue and notify worker thread
-  std::unique_lock<std::mutex> lk(_mutex);
-  _queue.push(std::move(threadMsg));
-  _cv.notify_one();
-
-  if (wait) {
-    _syncProcessed = false;
-    // Wait for the synchronization process to be true
-    _cv.wait(lk, [this] { return _syncProcessed; });
   }
 }

@@ -8,11 +8,6 @@
 #include <thread>
 
 struct ThreadMsg {
- private:
-  int _id = -1;  // -1:exit thread
-  std::shared_ptr<void> _msg;
-  bool _wait = false;
-
  public:
   ThreadMsg(int id, std::shared_ptr<void> msg)
       : _id(id), _msg(msg), _wait(false) {}
@@ -21,6 +16,11 @@ struct ThreadMsg {
   std::shared_ptr<void> GetMsg() const { return _msg; }
   bool GetWait() const { return _wait; }
   void SetWait(bool wait) { _wait = wait; }
+
+ private:
+  int _id = -1;  // -1:exit thread
+  std::shared_ptr<void> _msg;
+  bool _wait = false;
 };
 
 class ThreadBase {
@@ -62,11 +62,11 @@ class ThreadBase {
   virtual void UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
 
  private:
-  /// Entry point for the worker thread
-  void Process();
-
   /// Post or send a message to the thread queue
   void PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait);
+
+  /// Entry point for the worker thread
+  void Process();
 
  private:
   const int Exit_SignalID = -1;
