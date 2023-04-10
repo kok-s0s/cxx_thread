@@ -36,12 +36,12 @@ std::thread::id ThreadBase::GetCurrentThreadId() {
   return std::this_thread::get_id();
 }
 
-void ThreadBase::PostMsg(std::shared_ptr<ThreadMsg> threadMsg) {
-  PostOrSendMsg(std::move(threadMsg), false);
+void ThreadBase::SendSlotFuncAsyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
+  SendMsg(std::move(threadMsg), false);
 }
 
-void ThreadBase::SendMsg(std::shared_ptr<ThreadMsg> threadMsg) {
-  PostOrSendMsg(std::move(threadMsg), true);
+void ThreadBase::SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
+  SendMsg(std::move(threadMsg), true);
   std::unique_lock<std::mutex> lk(_mutex);
   try {
     _cv.wait(lk, [this] { return _syncProcessed; });
@@ -50,8 +50,7 @@ void ThreadBase::SendMsg(std::shared_ptr<ThreadMsg> threadMsg) {
   }
 }
 
-void ThreadBase::PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg,
-                               bool wait) {
+void ThreadBase::SendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait) {
   if (!_thread) return;
 
   threadMsg->SetWait(wait);

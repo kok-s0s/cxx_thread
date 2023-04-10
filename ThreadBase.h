@@ -51,19 +51,19 @@ class ThreadBase {
 
   /// Post a message to the thread queue
   /// @param[in] data - thread specific message information
-  void PostMsg(std::shared_ptr<ThreadMsg> threadMsg);
+  void SendSlotFuncAsyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg);
 
   /// Send a message to the thread queue
   /// @param[in] data - thread specific message information
-  void SendMsg(std::shared_ptr<ThreadMsg> threadMsg);
+  void SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg);
 
  protected:
   /// Build the relationship between the signal and the slot function
   virtual void UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
 
  private:
-  /// Post or send a message to the thread queue
-  void PostOrSendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait);
+  /// Send a message to the thread queue (async or sync)
+  void SendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait);
 
   /// Entry point for the worker thread
   void Process();

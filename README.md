@@ -21,15 +21,15 @@
 
 `ThreadBase` 是一个基于 `std::thread` 的线程基类，用于处理消息队列（存储数据类型为 `ThreadMsg`），该类提供了以下功能函数：
 
-| 函数名               | 作用                                                    |
-| :------------------- | :------------------------------------------------------ |
-| `CreateThread`       | 创建工作线程                                            |
-| `ExitThread`         | 退出工作线程                                            |
-| `GetThreadID`        | 获取线程 ID                                             |
-| `GetCurrentThreadID` | 获取当前线程 ID                                         |
-| `UserCustomFunction` | 纯虚函数 - 派生类通过重写该函数将信号和槽函数绑定起来   |
-| `PostOrSendMsg`      | 传递消息到消息队列中 - 异步 `PostMsg` or 同步 `SendMsg` |
-| `Process`            | 处理消息队列                                            |
+| 函数名               | 作用                                                  |
+| :------------------- | :---------------------------------------------------- |
+| `CreateThread`       | 创建工作线程                                          |
+| `ExitThread`         | 退出工作线程                                          |
+| `GetThreadID`        | 获取线程 ID                                           |
+| `GetCurrentThreadID` | 获取当前线程 ID                                       |
+| `UserCustomFunction` | 纯虚函数 - 派生类通过重写该函数将信号和槽函数绑定起来 |
+| `SendMsg`            | 传递消息到消息队列中 - 异步或同步                     |
+| `Process`            | 处理消息队列                                          |
 
 ## 测试
 

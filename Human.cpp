@@ -23,20 +23,20 @@ std::string Human::GetAnswerFromOtherPeople() { return _answer; }
 void Human::SendSayHelloSignal() {
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       SayHello_Signal, std::shared_ptr<std::string>(nullptr));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendSayGoodByeSignal() {
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       SayGoodBye_Signal, std::shared_ptr<std::string>(nullptr));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendWillDoSignal(const std::string& doWhat) {
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(doWhat);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       WillDo_Signal, std::static_pointer_cast<void>(msgData));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendPlanToDoSignal(const std::string& startTime,
@@ -48,7 +48,7 @@ void Human::SendPlanToDoSignal(const std::string& startTime,
   msgData->event = event;
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       PlanToDo_Signal, std::static_pointer_cast<void>(msgData));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
@@ -60,28 +60,28 @@ void Human::SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
   msgData->content = content;
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       AskAQuestion_Signal, std::static_pointer_cast<void>(msgData));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendGetAQuestionSignal(Question question) {
   std::shared_ptr<Question> msgData = std::make_shared<Question>(question);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       GetAQuestion_Signal, std::static_pointer_cast<void>(msgData));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendAnswerAQuestionSignal(const std::string& answer) {
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       AnswerAQuestion_Signal, std::static_pointer_cast<void>(msgData));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendGetAAnswerSignal(const std::string& answer) {
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       GetAAnswer_Signal, std::static_pointer_cast<void>(msgData));
-  SendMsg(std::move(threadMsg));
+  SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 #pragma endregion
@@ -100,7 +100,7 @@ void Human::FellAsleep() {
     _exitTimer = true;
     std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
         ExitTimer_Signal, std::shared_ptr<std::string>(nullptr));
-    SendMsg(std::move(threadMsg));
+    SendSlotFuncSyncRunMsg(std::move(threadMsg));
   }
 }
 
@@ -201,7 +201,7 @@ void Human::TimerSlot() {
 
     std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
         WantToSleep_Signal, std::shared_ptr<std::string>(nullptr));
-    PostMsg(std::move(threadMsg));
+    SendSlotFuncAsyncRunMsg(std::move(threadMsg));
   }
 }
 

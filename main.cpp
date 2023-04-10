@@ -38,7 +38,7 @@ TEST(Human, chat) {
   EXPECT_EQ(xiaoMing->GetAnswerFromOtherPeople(), "Yes! I like!");
 }
 
-// Test whether it runs synchronously
+// Test that the timer works correctly
 TEST(Human, want_to_sleep) {
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
   human->WakeUp();
