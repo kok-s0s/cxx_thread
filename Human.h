@@ -18,17 +18,17 @@ class Human : public ThreadBase {
     std::string content;
   };
 
-  enum SignalID : int {
-    SayHello_SignalID,
-    SayGoodBye_SignalID,
-    WillDo_SignalID,
-    PlanToDo_SignalID,
-    AskAQuestion_SignalID,
-    GetAQuestion_SignalID,
-    AnswerAQuestion_SignalID,
-    GetAAnswer_SignalID,
-    WantToSleep_SignalID,
-    ExitTimer_SignalID
+  enum Signal : int {
+    SayHello_Signal,
+    SayGoodBye_Signal,
+    WillDo_Signal,
+    PlanToDo_Signal,
+    AskAQuestion_Signal,
+    GetAQuestion_Signal,
+    AnswerAQuestion_Signal,
+    GetAAnswer_Signal,
+    WantToSleep_Signal,
+    ExitTimer_Signal
   };
 
  public:

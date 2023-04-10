@@ -16,7 +16,7 @@ void ThreadBase::ExitThread() {
 
   // Create a ThreadMsg
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
-      Exit_SignalID, std::shared_ptr<void>(nullptr));
+      ExitThread_Signal, std::shared_ptr<void>(nullptr));
 
   // Put exit thread message into the queue
   {
@@ -80,7 +80,7 @@ void ThreadBase::Process() {
       _queue.pop();
     }
 
-    if (threadMsg->GetId() == Exit_SignalID) {
+    if (threadMsg->GetSignal() == ExitThread_Signal) {
       break;
     }
 

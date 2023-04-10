@@ -9,16 +9,16 @@
 
 struct ThreadMsg {
  public:
-  ThreadMsg(int id, std::shared_ptr<void> msg)
-      : _id(id), _msg(msg), _wait(false) {}
+  ThreadMsg(int signal, std::shared_ptr<void> msg)
+      : _signal(signal), _msg(msg), _wait(false) {}
 
-  int GetId() const { return _id; }
+  int GetSignal() const { return _signal; }
   std::shared_ptr<void> GetMsg() const { return _msg; }
   bool GetWait() const { return _wait; }
   void SetWait(bool wait) { _wait = wait; }
 
  private:
-  int _id = -1;  // -1:exit thread
+  int _signal = -1;  // -1: exit thread
   std::shared_ptr<void> _msg;
   bool _wait = false;
 };
@@ -58,7 +58,7 @@ class ThreadBase {
   void SendMsg(std::shared_ptr<ThreadMsg> threadMsg);
 
  protected:
-  /// Build the relationship between the signal and the slot
+  /// Build the relationship between the signal and the slot function
   virtual void UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
 
  private:
@@ -69,7 +69,7 @@ class ThreadBase {
   void Process();
 
  private:
-  const int Exit_SignalID = -1;
+  const int ExitThread_Signal = -1;
 
  private:
   std::unique_ptr<std::thread> _thread;
