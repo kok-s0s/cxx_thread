@@ -18,7 +18,6 @@
 | `_msg`    | `std::shared_ptr<void>` 类型 - 存储槽函数所需参数数据               |
 | `_wait`   | `bool` 类型 - `_wait` 为 `true`，槽函数为同步运行，反之为异步运行。 |
 
-
 `ThreadBase` 是一个基于 `std::thread` 的线程基类，用于处理消息队列（存储数据类型为 `ThreadMsg`），该类提供了以下功能函数：
 
 | 函数名               | 作用                                                  |
@@ -40,3 +39,7 @@
 ### 测试驱动开发 TDD
 
 使用 GoogleTest 做单元测试，测试所实现的线程能否达到设计期望。
+
+## 日志检查
+
+使用个 [PLOG](https://github.com/SergiusTheBest/plog) 开源库，实现日志记录。在 GoogleTest 单元测试的基础上，看日志判断一些构造函数、析构函数是否被正确调用。
