@@ -13,9 +13,8 @@ class Human : public ThreadBase {
   };
 
   struct Question {
-    std::shared_ptr<Human> questioner;
-    std::shared_ptr<Human> respondent;
     std::string content;
+    std::string answer;
   };
 
   enum Signal : int {
@@ -44,11 +43,11 @@ class Human : public ThreadBase {
   void SendWillDoSignal(const std::string& doWhat);
   void SendPlanToDoSignal(const std::string& startTime,
                           const std::string& endTime, const std::string& event);
-  void SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
-                              std::shared_ptr<Human>& respondent,
+  void SendAskAQuestionSignal(std::shared_ptr<Human> respondent,
                               const std::string& content);
-  void SendGetAQuestionSignal(Question question);
-  void SendAnswerAQuestionSignal(const std::string& answer);
+  void SendGetAQuestionSignal(const std::string& question);
+  void SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
+                                 const std::string& answer);
   void SendGetAAnswerSignal(const std::string& answer);
 
  public:
@@ -67,8 +66,8 @@ class Human : public ThreadBase {
   void SayGoodByeSlot();
   void WillDoSlot(const std::string& something);
   void PlanToDoSlot(const Plan& plan);
-  void AskAQuestionSlot(const Question& question);
-  void GetAQuestionSlot(const Question& question);
+  void AskAQuestionSlot(const std::string& question);
+  void GetAQuestionSlot(const std::string& question);
   void AnswerAQuestionSlot(const std::string& answer);
   void GetAAnswerSlot(const std::string& answer);
   void WantToSleepSlot();
@@ -77,7 +76,6 @@ class Human : public ThreadBase {
  private:
   std::string _name;
   std::string _sentence;
-  std::string _answer;
   Question _question;
   std::unique_ptr<std::thread> _timerThread;
   bool _exitTimer = false;

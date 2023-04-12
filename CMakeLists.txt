@@ -3,6 +3,8 @@ project(thread VERSION 0.1.0)
 
 set (CMAKE_CXX_STANDARD 20)
 
+include_directories(plog/include)
+
 include(FetchContent)
 FetchContent_Declare(
   googletest

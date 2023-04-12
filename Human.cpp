@@ -1,8 +1,13 @@
 #include "Human.h"
 
-Human::Human(std::string name) : _name(name), _sentence("") { CreateThread(); }
+#include <plog/Log.h>
 
-Human::~Human() {}
+Human::Human(std::string name) : _name(name), _sentence("") {
+  CreateThread();
+  PLOGD << "Call the constructor";
+}
+
+Human::~Human() { PLOGD << "Call the destructor"; }
 
 #pragma region public_member_function_to_control_private_variable_value
 
@@ -14,7 +19,7 @@ std::string Human::GetSentence() { return _sentence; }
 
 std::string Human::GetQuestionFromOtherPeople() { return _question.content; }
 
-std::string Human::GetAnswerFromOtherPeople() { return _answer; }
+std::string Human::GetAnswerFromOtherPeople() { return _question.answer; }
 
 #pragma endregion
 
@@ -51,30 +56,35 @@ void Human::SendPlanToDoSignal(const std::string& startTime,
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
-void Human::SendAskAQuestionSignal(const std::shared_ptr<Human>& questioner,
-                                   std::shared_ptr<Human>& respondent,
-                                   const std::string& content) {
-  std::shared_ptr<Question> msgData = std::make_shared<Question>();
-  msgData->questioner = questioner;
-  msgData->respondent = respondent;
-  msgData->content = content;
+void Human::SendAskAQuestionSignal(std::shared_ptr<Human> respondent,
+                                   const std::string& question) {
+  _sentence = respondent->GetName() + ", " + question;
+  std::shared_ptr<std::string> msgData =
+      std::make_shared<std::string>(question);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       AskAQuestion_Signal, std::static_pointer_cast<void>(msgData));
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
+  respondent->SendGetAQuestionSignal(question);
+  respondent = nullptr;
 }
 
-void Human::SendGetAQuestionSignal(Question question) {
-  std::shared_ptr<Question> msgData = std::make_shared<Question>(question);
+void Human::SendGetAQuestionSignal(const std::string& question) {
+  std::shared_ptr<std::string> msgData =
+      std::make_shared<std::string>(question);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       GetAQuestion_Signal, std::static_pointer_cast<void>(msgData));
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
-void Human::SendAnswerAQuestionSignal(const std::string& answer) {
+void Human::SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
+                                      const std::string& answer) {
+  _sentence = questioner->GetName() + ", " + answer;
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       AnswerAQuestion_Signal, std::static_pointer_cast<void>(msgData));
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
+  questioner->SendGetAAnswerSignal(answer);
+  questioner = nullptr;
 }
 
 void Human::SendGetAAnswerSignal(const std::string& answer) {
@@ -129,13 +139,13 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
     }
     case AskAQuestion_Signal: {
       auto question =
-          *(std::static_pointer_cast<Question>(threadMsg->GetMsg()));
+          *(std::static_pointer_cast<std::string>(threadMsg->GetMsg()));
       AskAQuestionSlot(question);
       break;
     }
     case GetAQuestion_Signal: {
       auto question =
-          *(std::static_pointer_cast<Question>(threadMsg->GetMsg()));
+          *(std::static_pointer_cast<std::string>(threadMsg->GetMsg()));
       GetAQuestionSlot(question);
       break;
     }
@@ -178,19 +188,21 @@ void Human::PlanToDoSlot(const Plan& plan) {
               plan.endTime + ".";
 }
 
-void Human::AskAQuestionSlot(const Question& question) {
-  _sentence = question.respondent->GetName() + ", " + question.content;
-  question.respondent->SendGetAQuestionSignal(question);
+void Human::AskAQuestionSlot(const std::string& question) {
+  _question.content = question;
 }
 
-void Human::GetAQuestionSlot(const Question& question) { _question = question; }
+void Human::GetAQuestionSlot(const std::string& question) {
+  _question.content = question;
+}
 
 void Human::AnswerAQuestionSlot(const std::string& answer) {
-  _sentence = _question.questioner->GetName() + ", " + answer;
-  _question.questioner->SendGetAAnswerSignal(answer);
+  _question.answer = answer;
 }
 
-void Human::GetAAnswerSlot(const std::string& answer) { _answer = answer; }
+void Human::GetAAnswerSlot(const std::string& answer) {
+  _question.answer = answer;
+}
 
 void Human::WantToSleepSlot() { _sentence = "I want to sleep."; }
 
