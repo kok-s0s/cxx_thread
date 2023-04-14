@@ -26,18 +26,21 @@ std::string Human::GetAnswerFromOtherPeople() { return _question.answer; }
 #pragma region public_function_to_send_signal
 
 void Human::SendSayHelloSignal() {
+  PLOGD << "SendSayHelloSignal";
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       SayHello_Signal, std::shared_ptr<std::string>(nullptr));
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendSayGoodByeSignal() {
+  PLOGD << "SendSayGoodByeSignal";
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       SayGoodBye_Signal, std::shared_ptr<std::string>(nullptr));
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
 void Human::SendWillDoSignal(const std::string& doWhat) {
+  PLOGD << "SendWillDoSignal";
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(doWhat);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       WillDo_Signal, std::static_pointer_cast<void>(msgData));
@@ -47,6 +50,7 @@ void Human::SendWillDoSignal(const std::string& doWhat) {
 void Human::SendPlanToDoSignal(const std::string& startTime,
                                const std::string& endTime,
                                const std::string& event) {
+  PLOGD << "SendPlanToDoSignal";
   std::shared_ptr<Plan> msgData = std::make_shared<Plan>();
   msgData->startTime = startTime;
   msgData->endTime = endTime;
@@ -58,6 +62,7 @@ void Human::SendPlanToDoSignal(const std::string& startTime,
 
 void Human::SendAskAQuestionSignal(std::shared_ptr<Human> respondent,
                                    const std::string& question) {
+  PLOGD << "SendAskAQuestionSignal";
   _sentence = respondent->GetName() + ", " + question;
   std::shared_ptr<std::string> msgData =
       std::make_shared<std::string>(question);
@@ -69,6 +74,7 @@ void Human::SendAskAQuestionSignal(std::shared_ptr<Human> respondent,
 }
 
 void Human::SendGetAQuestionSignal(const std::string& question) {
+  PLOGD << "SendGetAQuestionSignal";
   std::shared_ptr<std::string> msgData =
       std::make_shared<std::string>(question);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
@@ -78,6 +84,7 @@ void Human::SendGetAQuestionSignal(const std::string& question) {
 
 void Human::SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
                                       const std::string& answer) {
+  PLOGD << "SendAnswerAQuestionSignal";
   _sentence = questioner->GetName() + ", " + answer;
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
@@ -88,6 +95,7 @@ void Human::SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
 }
 
 void Human::SendGetAAnswerSignal(const std::string& answer) {
+  PLOGD << "SendGetAAnswerSignal";
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       GetAAnswer_Signal, std::static_pointer_cast<void>(msgData));
@@ -107,6 +115,7 @@ void Human::WakeUp() {
 
 void Human::FellAsleep() {
   if (_timerThread != nullptr) {
+    PLOGD << "FellAsleep";
     _exitTimer = true;
     std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
         ExitTimer_Signal, std::shared_ptr<std::string>(nullptr));
@@ -117,6 +126,8 @@ void Human::FellAsleep() {
 #pragma endregion
 
 void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
+  PLOGD << "UserCustomFunction"
+        << " -- " << threadMsg->GetSignal();
   switch (threadMsg->GetSignal()) {
     case SayHello_Signal: {
       SayHelloSlot();
@@ -175,39 +186,55 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
 
 #pragma region private_slot_function
 
-void Human::SayHelloSlot() { _sentence = "Hello, " + _name + "!"; }
+void Human::SayHelloSlot() {
+  PLOGD << "SayHelloSlot";
+  _sentence = "Hello, " + _name + "!";
+}
 
-void Human::SayGoodByeSlot() { _sentence = "GoodBye, " + _name + "!"; }
+void Human::SayGoodByeSlot() {
+  PLOGD << "SayGoodByeSlot";
+  _sentence = "GoodBye, " + _name + "!";
+}
 
 void Human::WillDoSlot(const std::string& doWhat) {
+  PLOGD << "WillDoSlot";
   _sentence = "I'm going to go to " + doWhat;
 }
 
 void Human::PlanToDoSlot(const Plan& plan) {
+  PLOGD << "PlanToDoSlot";
   _sentence = "I plan to " + plan.event + " from " + plan.startTime + " to " +
               plan.endTime + ".";
 }
 
 void Human::AskAQuestionSlot(const std::string& question) {
+  PLOGD << "AskAQuestionSlot";
   _question.content = question;
 }
 
 void Human::GetAQuestionSlot(const std::string& question) {
+  PLOGD << "GetAQuestionSlot";
   _question.content = question;
 }
 
 void Human::AnswerAQuestionSlot(const std::string& answer) {
+  PLOGD << "AnswerAQuestionSlot";
   _question.answer = answer;
 }
 
 void Human::GetAAnswerSlot(const std::string& answer) {
+  PLOGD << "GetAAnswerSlot";
   _question.answer = answer;
 }
 
-void Human::WantToSleepSlot() { _sentence = "I want to sleep."; }
+void Human::WantToSleepSlot() {
+  PLOGD << "WantToSleepSlot";
+  _sentence = "I want to sleep.";
+}
 
 void Human::TimerSlot() {
   while (!_exitTimer) {
+    PLOGD << "TimerSlot";
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     countSayWantToSleep++;
 

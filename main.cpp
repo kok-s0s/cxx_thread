@@ -9,6 +9,7 @@
 
 // Test that the signal and slot functions work correctly
 TEST(Human, say_hello) {
+  PLOGD << "--------------------------------------------";
   PLOGD << "say hello";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
   human->SendSayHelloSignal();
@@ -20,6 +21,7 @@ TEST(Human, say_hello) {
 
 // Test whether parameter can be passed correctly
 TEST(Human, will_do) {
+  PLOGD << "--------------------------------------------";
   PLOGD << "will do";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
   human->SendWillDoSignal("sleep");
@@ -29,6 +31,7 @@ TEST(Human, will_do) {
 
 // Test whether multiple parameters can be passed correctly
 TEST(Human, plan_to_do) {
+  PLOGD << "--------------------------------------------";
   PLOGD << "plan to do";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
   human->SendPlanToDoSignal("9:00", "13:00", "play the game");
@@ -39,6 +42,7 @@ TEST(Human, plan_to_do) {
 
 // Test whether two thread objects can interact with each other
 TEST(Human, chat) {
+  PLOGD << "--------------------------------------------";
   PLOGD << "chat";
   std::shared_ptr<Human> xiaoMing = std::make_shared<Human>("xiaoMing");
   std::shared_ptr<Human> xiaoHong = std::make_shared<Human>("xiaoHong");
@@ -53,6 +57,7 @@ TEST(Human, chat) {
 
 // Test that the timer works correctly
 TEST(Human, want_to_sleep) {
+  PLOGD << "--------------------------------------------";
   PLOGD << "want to sleep";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
   human->WakeUp();
