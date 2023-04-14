@@ -63,7 +63,7 @@ TEST(Human, want_to_sleep) {
   human->WakeUp();
   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
   human->FellAsleep();
-  EXPECT_EQ(human->countSayWantToSleep, 5);
+  EXPECT_EQ(human->GetCountSayWantToSleep(), 5);
   EXPECT_EQ(human->GetSentence(), "I want to sleep.");
   PLOGD << "want to sleep end";
 }

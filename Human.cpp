@@ -21,6 +21,8 @@ std::string Human::GetQuestionFromOtherPeople() { return _question.content; }
 
 std::string Human::GetAnswerFromOtherPeople() { return _question.answer; }
 
+int Human::GetCountSayWantToSleep() { return _countSayWantToSleep; }
+
 #pragma endregion
 
 #pragma region public_function_to_send_signal
@@ -109,7 +111,7 @@ void Human::SendGetAAnswerSignal(const std::string& answer) {
 void Human::WakeUp() {
   if (_timerThread == nullptr) {
     _exitTimer = false;
-    _timerThread = std::make_unique<std::thread>(&Human::TimerSlot, this);
+    _timerThread = std::make_unique<std::thread>(&Human::TimerFunction, this);
   }
 }
 
@@ -232,16 +234,17 @@ void Human::WantToSleepSlot() {
   _sentence = "I want to sleep.";
 }
 
-void Human::TimerSlot() {
+void Human::TimerFunction() {
   while (!_exitTimer) {
-    PLOGD << "TimerSlot";
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    countSayWantToSleep++;
+    _countSayWantToSleep++;
+    PLOGD << "TimerFunction -- _countSayWantToSleep: " << _countSayWantToSleep;
 
     std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
         WantToSleep_Signal, std::shared_ptr<std::string>(nullptr));
     SendSlotFuncAsyncRunMsg(std::move(threadMsg));
   }
+  PLOGD << "TimerFunction -- exit";
 }
 
 #pragma endregion

@@ -38,6 +38,7 @@ class Human : public ThreadBase {
   std::string GetSentence();
   std::string GetQuestionFromOtherPeople();
   std::string GetAnswerFromOtherPeople();
+  int GetCountSayWantToSleep();
   void SendSayHelloSignal();
   void SendSayGoodByeSignal();
   void SendWillDoSignal(const std::string& doWhat);
@@ -49,9 +50,6 @@ class Human : public ThreadBase {
   void SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
                                  const std::string& answer);
   void SendGetAAnswerSignal(const std::string& answer);
-
- public:
-  int countSayWantToSleep = 0;
 
  public:
   void WakeUp();
@@ -71,12 +69,15 @@ class Human : public ThreadBase {
   void AnswerAQuestionSlot(const std::string& answer);
   void GetAAnswerSlot(const std::string& answer);
   void WantToSleepSlot();
-  void TimerSlot();
+
+ private:
+  void TimerFunction();
 
  private:
   std::string _name;
   std::string _sentence;
   Question _question;
+  int _countSayWantToSleep = 0;
   std::unique_ptr<std::thread> _timerThread;
   bool _exitTimer = false;
 };
