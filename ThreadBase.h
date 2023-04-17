@@ -18,21 +18,23 @@ struct ThreadMsg {
   std::shared_ptr<void> GetMsg() const { return _msg; }
 
  private:
-  bool _wait = false;  // async: false, sync: true (default: false)
-  int _signal = -1;    // -1: destroy thread
-  std::shared_ptr<void> _msg;
+  bool _wait = false;          // async: false, sync: true (default: false)
+  int _signal = -1;            // -1: destroy thread
+  std::shared_ptr<void> _msg;  // thread specific message information
 };
 
 class ThreadBase {
  public:
-  ThreadBase(const ThreadBase &) = delete;  // non construction-copyable
   ThreadBase &operator=(const ThreadBase &) = delete;  // non copyable
+  ThreadBase &operator=(ThreadBase &&) = delete;       // non movable
+  ThreadBase(ThreadBase &&) = delete;                  // non movable
+  ThreadBase(const ThreadBase &) = delete;  // non construction-copyable
 
   /// Constructor
-  ThreadBase();
+  explicit ThreadBase();
 
   /// Destructor
-  ~ThreadBase();
+  virtual ~ThreadBase();
 
   /// Called once to create the worker thread
   /// @return True if thread is created. False otherwise.
