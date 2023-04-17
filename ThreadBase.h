@@ -10,23 +10,23 @@
 struct ThreadMsg {
  public:
   ThreadMsg(int signal, std::shared_ptr<void> msg)
-      : _signal(signal), _msg(msg), _wait(false) {}
+      : _wait(false), _signal(signal), _msg(msg) {}
 
-  int GetSignal() const { return _signal; }
-  std::shared_ptr<void> GetMsg() const { return _msg; }
   bool GetWait() const { return _wait; }
   void SetWait(bool wait) { _wait = wait; }
+  int GetSignal() const { return _signal; }
+  std::shared_ptr<void> GetMsg() const { return _msg; }
 
  private:
-  int _signal = -1;  // -1: exit thread
+  bool _wait = false;  // async: false, sync: true (default: false)
+  int _signal = -1;    // -1: destroy thread
   std::shared_ptr<void> _msg;
-  bool _wait = false;
 };
 
 class ThreadBase {
  public:
-  ThreadBase(const ThreadBase &) = delete;
-  ThreadBase &operator=(const ThreadBase &) = delete;
+  ThreadBase(const ThreadBase &) = delete;  // non construction-copyable
+  ThreadBase &operator=(const ThreadBase &) = delete;  // non copyable
 
   /// Constructor
   ThreadBase();
@@ -38,22 +38,22 @@ class ThreadBase {
   /// @return True if thread is created. False otherwise.
   bool CreateThread();
 
-  /// Called once a program exit to exit the worker thread
-  void ExitThread();
+  /// Called once to destroy the worker thread
+  void DestroyThread();
 
-  /// Get the ID of this thread instance
+  /// Get the ID of the worker thread
   /// @return The worker thread ID
   std::thread::id GetThreadId();
 
-  /// Get the ID of the currently executing thread
+  /// Get the ID of the current thread
   /// @return The current thread ID
   static std::thread::id GetCurrentThreadId();
 
-  /// Post a message to the thread queue
+  /// Send a message to the message queue (async)
   /// @param[in] data - thread specific message information
   void SendSlotFuncAsyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg);
 
-  /// Send a message to the thread queue
+  /// Send a message to the message queue (sync)
   /// @param[in] data - thread specific message information
   void SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg);
 
@@ -63,13 +63,13 @@ class ThreadBase {
 
  private:
   /// Send a message to the thread queue (async or sync)
-  void SendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait);
+  void SendMsg(bool wait, std::shared_ptr<ThreadMsg> threadMsg);
 
-  /// Entry point for the worker thread
+  /// Process the message queue
   void Process();
 
  private:
-  const int ExitThread_Signal = -1;
+  const int DestroyThread_Signal = -1;
 
  private:
   std::unique_ptr<std::thread> _thread;

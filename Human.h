@@ -1,22 +1,23 @@
 #ifndef Human_H_
 #define Human_H_
+
 #include <iostream>
 #include <string>
 
 #include "ThreadBase.h"
 
+struct Plan {
+  std::string startTime;
+  std::string endTime;
+  std::string event;
+};
+
+struct Question {
+  std::string content;
+  std::string answer;
+};
+
 class Human : public ThreadBase {
-  struct Plan {
-    std::string startTime;
-    std::string endTime;
-    std::string event;
-  };
-
-  struct Question {
-    std::string content;
-    std::string answer;
-  };
-
   enum Signal : int {
     SayHello_Signal,
     SayGoodBye_Signal,
@@ -27,14 +28,13 @@ class Human : public ThreadBase {
     AnswerAQuestion_Signal,
     GetAAnswer_Signal,
     WantToSleep_Signal,
-    ExitTimer_Signal
+    DestroyTimer_Signal
   };
 
  public:
   Human(std::string name);
   ~Human();
   std::string GetName();
-  void SetName(const std::string name);
   std::string GetSentence();
   std::string GetQuestionFromOtherPeople();
   std::string GetAnswerFromOtherPeople();
@@ -42,8 +42,7 @@ class Human : public ThreadBase {
   void SendSayHelloSignal();
   void SendSayGoodByeSignal();
   void SendWillDoSignal(const std::string& doWhat);
-  void SendPlanToDoSignal(const std::string& startTime,
-                          const std::string& endTime, const std::string& event);
+  void SendPlanToDoSignal(const Plan& plan);
   void SendAskAQuestionSignal(std::shared_ptr<Human> respondent,
                               const std::string& content);
   void SendGetAQuestionSignal(const std::string& question);
@@ -52,8 +51,8 @@ class Human : public ThreadBase {
   void SendGetAAnswerSignal(const std::string& answer);
 
  public:
-  void WakeUp();
-  void FellAsleep();
+  void CreateTimer();
+  void DestroyTimer();
 
  protected:
   virtual void UserCustomFunction(
@@ -71,7 +70,7 @@ class Human : public ThreadBase {
   void WantToSleepSlot();
 
  private:
-  void TimerFunction();
+  void TimedTask();
 
  private:
   std::string _name;
@@ -79,7 +78,7 @@ class Human : public ThreadBase {
   Question _question;
   int _countSayWantToSleep = 0;
   std::unique_ptr<std::thread> _timerThread;
-  bool _exitTimer = false;
+  bool _destroyTimer = false;
 };
 
 #endif  // Human_H_

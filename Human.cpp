@@ -9,11 +9,9 @@ Human::Human(std::string name) : _name(name), _sentence("") {
 
 Human::~Human() { PLOGD << "Call the destructor"; }
 
-#pragma region public_member_function_to_control_private_variable_value
+#pragma region public_member_function_to_get_private_member_variable_value
 
 std::string Human::GetName() { return _name; }
-
-void Human::SetName(const std::string name) { _name = name; }
 
 std::string Human::GetSentence() { return _sentence; }
 
@@ -49,14 +47,9 @@ void Human::SendWillDoSignal(const std::string& doWhat) {
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
 }
 
-void Human::SendPlanToDoSignal(const std::string& startTime,
-                               const std::string& endTime,
-                               const std::string& event) {
+void Human::SendPlanToDoSignal(const Plan& plan) {
   PLOGD << "SendPlanToDoSignal";
-  std::shared_ptr<Plan> msgData = std::make_shared<Plan>();
-  msgData->startTime = startTime;
-  msgData->endTime = endTime;
-  msgData->event = event;
+  std::shared_ptr<Plan> msgData = std::make_shared<Plan>(plan);
   std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
       PlanToDo_Signal, std::static_pointer_cast<void>(msgData));
   SendSlotFuncSyncRunMsg(std::move(threadMsg));
@@ -108,19 +101,20 @@ void Human::SendGetAAnswerSignal(const std::string& answer) {
 
 #pragma region public_function_to_control_timer
 
-void Human::WakeUp() {
+void Human::CreateTimer() {
   if (_timerThread == nullptr) {
-    _exitTimer = false;
-    _timerThread = std::make_unique<std::thread>(&Human::TimerFunction, this);
+    PLOGD << "CreateTimer";
+    _destroyTimer = false;
+    _timerThread = std::make_unique<std::thread>(&Human::TimedTask, this);
   }
 }
 
-void Human::FellAsleep() {
+void Human::DestroyTimer() {
   if (_timerThread != nullptr) {
-    PLOGD << "FellAsleep";
-    _exitTimer = true;
+    PLOGD << "DestroyTimer";
+    _destroyTimer = true;
     std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
-        ExitTimer_Signal, std::shared_ptr<std::string>(nullptr));
+        DestroyTimer_Signal, std::shared_ptr<std::string>(nullptr));
     SendSlotFuncSyncRunMsg(std::move(threadMsg));
   }
 }
@@ -178,7 +172,7 @@ void Human::UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) {
       WantToSleepSlot();
       break;
     }
-    case ExitTimer_Signal: {
+    case DestroyTimer_Signal: {
       _timerThread->join();
       _timerThread = nullptr;
       break;
@@ -234,17 +228,17 @@ void Human::WantToSleepSlot() {
   _sentence = "I want to sleep.";
 }
 
-void Human::TimerFunction() {
-  while (!_exitTimer) {
+void Human::TimedTask() {
+  while (!_destroyTimer) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     _countSayWantToSleep++;
-    PLOGD << "TimerFunction -- _countSayWantToSleep: " << _countSayWantToSleep;
+    PLOGD << "TimedTask -- _countSayWantToSleep: " << _countSayWantToSleep;
 
     std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
         WantToSleep_Signal, std::shared_ptr<std::string>(nullptr));
     SendSlotFuncAsyncRunMsg(std::move(threadMsg));
   }
-  PLOGD << "TimerFunction -- exit";
+  PLOGD << "TimedTask -- destroy";
 }
 
 #pragma endregion

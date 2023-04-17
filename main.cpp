@@ -34,7 +34,8 @@ TEST(Human, plan_to_do) {
   PLOGD << "--------------------------------------------";
   PLOGD << "plan to do";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
-  human->SendPlanToDoSignal("9:00", "13:00", "play the game");
+  Plan plan("9:00", "13:00", "play the game");
+  human->SendPlanToDoSignal(plan);
   EXPECT_EQ(human->GetSentence(),
             "I plan to play the game from 9:00 to 13:00.");
   PLOGD << "plan to do end";
@@ -60,9 +61,9 @@ TEST(Human, want_to_sleep) {
   PLOGD << "--------------------------------------------";
   PLOGD << "want to sleep";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
-  human->WakeUp();
+  human->CreateTimer();
   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-  human->FellAsleep();
+  human->DestroyTimer();
   EXPECT_EQ(human->GetCountSayWantToSleep(), 5);
   EXPECT_EQ(human->GetSentence(), "I want to sleep.");
   PLOGD << "want to sleep end";

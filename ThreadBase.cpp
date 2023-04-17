@@ -2,7 +2,7 @@
 
 ThreadBase::ThreadBase() : _thread(nullptr) {}
 
-ThreadBase::~ThreadBase() { ExitThread(); }
+ThreadBase::~ThreadBase() { DestroyThread(); }
 
 bool ThreadBase::CreateThread() {
   if (!_thread) {
@@ -11,19 +11,17 @@ bool ThreadBase::CreateThread() {
   return true;
 }
 
-void ThreadBase::ExitThread() {
+void ThreadBase::DestroyThread() {
   if (!_thread) return;
 
-  // Create a ThreadMsg
-  std::shared_ptr<ThreadMsg> threadMsg = std::make_shared<ThreadMsg>(
-      ExitThread_Signal, std::shared_ptr<void>(nullptr));
-
-  // Put exit thread message into the queue
+  // Send a message to the thread queue to destroy the thread
   {
     std::lock_guard<std::mutex> lock(_mutex);
-    _queue.emplace(threadMsg);
+    _queue.emplace(std::make_shared<ThreadMsg>(DestroyThread_Signal,
+                                               std::shared_ptr<void>(nullptr)));
     _cv.notify_one();
   }
+
   _thread->join();
   _thread = nullptr;
 }
@@ -37,11 +35,11 @@ std::thread::id ThreadBase::GetCurrentThreadId() {
 }
 
 void ThreadBase::SendSlotFuncAsyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
-  SendMsg(std::move(threadMsg), false);
+  SendMsg(false, std::move(threadMsg));
 }
 
 void ThreadBase::SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
-  SendMsg(std::move(threadMsg), true);
+  SendMsg(true, std::move(threadMsg));
   std::unique_lock<std::mutex> lk(_mutex);
   try {
     _cv.wait(lk, [this] { return _syncProcessed; });
@@ -50,25 +48,26 @@ void ThreadBase::SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
   }
 }
 
-void ThreadBase::SendMsg(std::shared_ptr<ThreadMsg> threadMsg, bool wait) {
+void ThreadBase::SendMsg(bool wait, std::shared_ptr<ThreadMsg> threadMsg) {
   if (!_thread) return;
 
   threadMsg->SetWait(wait);
 
-  // Add msg to queue and notify worker thread
+  // Add the message to the queue
   std::unique_lock<std::mutex> lk(_mutex);
   _queue.emplace(std::move(threadMsg));
   _cv.notify_one();
 
   if (wait) {
     _syncProcessed = false;
-    // Wait for the synchronization process to be true
+    // Wait for the message to be processed by the worker thread synchronously
     _cv.wait(lk, [this] { return _syncProcessed; });
   }
 }
 
 void ThreadBase::Process() {
   std::shared_ptr<ThreadMsg> threadMsg;
+
   while (1) {
     {
       // Wait for a message to be added to the queue
@@ -79,13 +78,12 @@ void ThreadBase::Process() {
       _queue.pop();
     }
 
-    if (threadMsg->GetSignal() == ExitThread_Signal) {
-      break;
-    }
+    if (threadMsg->GetSignal() == DestroyThread_Signal) break;
 
     UserCustomFunction(threadMsg);
 
     if (threadMsg->GetWait()) {
+      std::lock_guard<std::mutex> lock(_mutex);
       _syncProcessed = true;
       _cv.notify_one();
     }
