@@ -17,11 +17,12 @@ void ThreadBase::DestroyThread() {
   // Send a message to the thread queue to destroy the thread
   {
     std::lock_guard<std::mutex> lock(_mutex);
-    _queue.emplace(std::make_shared<ThreadMsg>(DestroyThread_Signal,
-                                               std::shared_ptr<void>(nullptr)));
+    _signalMsgQueue.emplace(std::make_shared<ThreadMsg>(
+        DestroyThread_Signal, std::shared_ptr<void>(nullptr)));
     _cv.notify_one();
   }
 
+  // Wait for the thread to be destroyed
   _thread->join();
   _thread = nullptr;
 }
@@ -40,9 +41,9 @@ void ThreadBase::SendSlotFuncAsyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
 
 void ThreadBase::SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg) {
   SendMsg(true, std::move(threadMsg));
-  std::unique_lock<std::mutex> lk(_mutex);
+  std::unique_lock<std::mutex> lock(_mutex);
   try {
-    _cv.wait(lk, [this] { return _syncProcessed; });
+    _cv.wait(lock, [this] { return _syncProcessed; });
   } catch (...) {
     // Ensure _syncProcessed is set to true even if an exception is thrown
   }
@@ -54,14 +55,14 @@ void ThreadBase::SendMsg(bool wait, std::shared_ptr<ThreadMsg> threadMsg) {
   threadMsg->SetWait(wait);
 
   // Add the message to the queue
-  std::unique_lock<std::mutex> lk(_mutex);
-  _queue.emplace(std::move(threadMsg));
+  std::unique_lock<std::mutex> lock(_mutex);
+  _signalMsgQueue.emplace(std::move(threadMsg));
   _cv.notify_one();
 
   if (wait) {
     _syncProcessed = false;
     // Wait for the message to be processed by the worker thread synchronously
-    _cv.wait(lk, [this] { return _syncProcessed; });
+    _cv.wait(lock, [this] { return _syncProcessed; });
   }
 }
 
@@ -71,11 +72,11 @@ void ThreadBase::Process() {
   while (1) {
     {
       // Wait for a message to be added to the queue
-      std::unique_lock<std::mutex> lk(_mutex);
-      _cv.wait(lk, [this] { return !_queue.empty(); });
-      if (_queue.empty()) continue;
-      threadMsg = std::move(_queue.front());
-      _queue.pop();
+      std::unique_lock<std::mutex> lock(_mutex);
+      _cv.wait(lock, [this] { return !_signalMsgQueue.empty(); });
+      if (_signalMsgQueue.empty()) continue;
+      threadMsg = std::move(_signalMsgQueue.front());
+      _signalMsgQueue.pop();
     }
 
     if (threadMsg->GetSignal() == DestroyThread_Signal) break;

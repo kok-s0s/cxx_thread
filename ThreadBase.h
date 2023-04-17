@@ -77,7 +77,7 @@ class ThreadBase {
   std::unique_ptr<std::thread> _thread;
   std::mutex _mutex;
   std::condition_variable _cv;
-  std::queue<std::shared_ptr<ThreadMsg>> _queue;
+  std::queue<std::shared_ptr<ThreadMsg>> _signalMsgQueue;
   bool _syncProcessed = false;
 };
 
