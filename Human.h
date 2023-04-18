@@ -28,7 +28,6 @@ class Human : public ThreadBase {
     AnswerAQuestion_Signal,
     GetAAnswer_Signal,
     WantToSleep_Signal,
-    DestroyTimer_Signal
   };
 
  public:
@@ -56,7 +55,7 @@ class Human : public ThreadBase {
 
  protected:
   virtual void UserCustomFunction(
-      std::shared_ptr<ThreadMsg> threadMsg) override;
+      std::shared_ptr<SignalMsg> signalMsg) override;
 
  private:
   void SayHelloSlot();

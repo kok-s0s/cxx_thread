@@ -7,9 +7,9 @@
 #include <queue>
 #include <thread>
 
-struct ThreadMsg {
+struct SignalMsg {
  public:
-  ThreadMsg(int signal, std::shared_ptr<void> msg)
+  SignalMsg(int signal, std::shared_ptr<void> msg)
       : _wait(false), _signal(signal), _msg(msg) {}
 
   bool GetWait() const { return _wait; }
@@ -20,7 +20,7 @@ struct ThreadMsg {
  private:
   bool _wait = false;          // async: false, sync: true (default: false)
   int _signal = -1;            // -1: destroy thread
-  std::shared_ptr<void> _msg;  // thread specific message information
+  std::shared_ptr<void> _msg;  // data required by the slot function
 };
 
 class ThreadBase {
@@ -52,20 +52,20 @@ class ThreadBase {
   static std::thread::id GetCurrentThreadId();
 
   /// Send a message to the message queue (async)
-  /// @param[in] data - thread specific message information
-  void SendSlotFuncAsyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg);
+  /// @param[in] data - message (signal, data required for slot function)
+  void SendSlotFuncAsyncRunMsg(std::shared_ptr<SignalMsg> signalMsg);
 
   /// Send a message to the message queue (sync)
-  /// @param[in] data - thread specific message information
-  void SendSlotFuncSyncRunMsg(std::shared_ptr<ThreadMsg> threadMsg);
+  /// @param[in] data - message (signal, data required for slot function)
+  void SendSlotFuncSyncRunMsg(std::shared_ptr<SignalMsg> signalMsg);
 
  protected:
   /// Build the relationship between the signal and the slot function
-  virtual void UserCustomFunction(std::shared_ptr<ThreadMsg> threadMsg) = 0;
+  virtual void UserCustomFunction(std::shared_ptr<SignalMsg> signalMsg) = 0;
 
  private:
   /// Send a message to the thread queue (async or sync)
-  void SendMsg(bool wait, std::shared_ptr<ThreadMsg> threadMsg);
+  void SendMsg(bool wait, std::shared_ptr<SignalMsg> signalMsg);
 
   /// Process the message queue
   void Process();
@@ -77,7 +77,7 @@ class ThreadBase {
   std::unique_ptr<std::thread> _thread;
   std::mutex _mutex;
   std::condition_variable _cv;
-  std::queue<std::shared_ptr<ThreadMsg>> _signalMsgQueue;
+  std::queue<std::shared_ptr<SignalMsg>> _signalMsgQueue;
   bool _syncProcessed = false;
 };
 
