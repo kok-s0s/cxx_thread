@@ -61,8 +61,10 @@ TEST(Human, want_to_sleep) {
   PLOGD << "--------------------------------------------";
   PLOGD << "want to sleep";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
+  PLOGD << "start timer";
   human->CreateTimer();
   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+  PLOGD << "stop timer";
   human->DestroyTimer();
   EXPECT_EQ(human->GetCountSayWantToSleep(), 5);
   EXPECT_EQ(human->GetSentence(), "I want to sleep.");
