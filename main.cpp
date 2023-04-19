@@ -34,7 +34,7 @@ TEST(Human, plan_to_do) {
   PLOGD << "--------------------------------------------";
   PLOGD << "plan to do";
   std::shared_ptr<Human> human = std::make_shared<Human>("k");
-  Plan plan("9:00", "13:00", "play the game");
+  Plan plan = {"9:00", "13:00", "play the game"};
   human->SendPlanToDoSignal(plan);
   EXPECT_EQ(human->GetSentence(),
             "I plan to play the game from 9:00 to 13:00.");
