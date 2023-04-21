@@ -1,45 +1,50 @@
+[zh-cn](./README_zh.md)
+
 # CXX_Thread
 
-## 设计期望
+## Design Expectations
 
-因该线程基类设计出来是为了替代 Qt 的 `QThread`，所以期望的功能如下：
+Since this thread base class is designed to replace Qt's `QThread`, the expected functionality is as follows:
 
-- 信号与槽机制。主线程发送一个指令（即调用业务线程的公有成员函数），当业务线程接受到主线程某一个指令后，业务线程能根据该指令（公有函数内部调用发送封装了信号的消息给消息队列）去处理相对应的业务逻辑（处理消息队列，根据信号值去调用对应的槽函数或业务逻辑代码）。
-- 继承该基类的派生业务类能持有定时器来做定时任务（异步执行）。
-- 线程对象能够正常交互，比如线程 A 能够向线程 B 发送信号，线程 B 能够向线程 A 发送信号。
+- Signal and slot mechanism. The main thread sends an instruction (i.e., calls the public member function of the business thread), and when the business thread receives an instruction from the main thread, the business thread can send a message to the message queue encapsulating the signal based on the instruction (internal call to the public function) to handle the corresponding business logic (handle the message queue and call the corresponding slot function or business logic code based on the signal value).
+- Derived business classes that inherit from this base class can hold timers to do timed tasks (asynchronous execution).
+- Thread objects can interact normally, e.g. Thread A can send signals to Thread B and Thread B can send signals to Thread A.
 
-### 核心代码说明
+### Core code description
 
-`SignalMsg` - 结构体
+`SignalMsg` - struct
 
-| 变量名    | 含义                                                             |
+| variable name | meaning |
 |:----------|:---------------------------------------------------------------|
-| `_wait`   | `bool` 类型 - `_wait` 为 `true`，槽函数为同步运行，反之为异步运行。 |
-| `_signal` | `int` 类型 - 用于表示信号                                        |
-| `_msg`    | `std::shared_ptr<void>` 类型 - 存储槽函数所需的参数数据          |
+| `_wait` | type `bool` - If `_wait` is `true`, the slot function runs synchronously, otherwise it runs asynchronously. |
+| `_signal` | `int` type - used to represent signals |
+| `_msg` | `std::shared_ptr<void>` type - stores the parameter data required by the slot function |
 
-`ThreadBase` 是一个基于 `std::thread` 的线程基类，用于处理消息队列（存储数据类型为 `SignalMsg`），该类提供了以下功能函数：
+`ThreadBase` is a thread base class based on `std::thread` for handling message queues (storing data of type `SignalMsg`), which provides the following function functions:
 
-| 函数名               | 作用                                                  |
+| function name | role |
 |:---------------------|:----------------------------------------------------|
-| `CreateThread`       | 创建工作线程                                          |
-| `DestroyThread`      | 销毁工作线程                                          |
-| `GetThreadID`        | 获取线程 ID                                           |
-| `GetCurrentThreadID` | 获取当前线程 ID                                       |
-| `UserCustomFunction` | 纯虚函数 - 派生类通过重写该函数将信号和槽函数绑定起来 |
-| `SendMsg`            | 传递消息到消息队列中 - 槽函数异步执行或同步执行       |
-| `Process`            | 处理消息队列                                          |
+| `CreateThread` | Creates a worker thread |
+| `DestroyThread` | Destroy the thread
+| `GetThreadID` | Get the thread ID |
+| `GetCurrentThreadID` | Get the current thread ID |
+| `UserCustomFunction` | Pure virtual function - derived classes bind signals to slot functions by overriding this function |
+| `SendMsg` | Pass a message to the message queue - the slot function executes asynchronously or synchronously |
+| `Process` | Process the message queue |
 
-## 测试
+## Testing
 
-### 测试代码说明
+### Test code description
 
-`Human` 派生类继承自 `ThreadBase` 基类，先定义所需的信号以及实现对应的槽函数，再通过重写 `UserCustomFunction` 函数，将信号和槽函数绑定起来，再编写一些可发送信号的 `public` 函数供外部调用。
+The `Human` derived class inherits from the `ThreadBase` base class, defines the required signals and implements the corresponding slot functions, then binds the signals to the slot functions by overriding the `UserCustomFunction` function, and then writes some `public` functions that can send signals for external calls.
 
-### 测试驱动开发 TDD
+### Test Driven Development - TDD
 
-使用 GoogleTest 做单元测试，测试所实现的线程能否达到设计期望。
+Use GoogleTest to do unit tests to test that the implemented threads meet the design expectations.
 
-## 日志检查
+## Log checking
 
-使用个 [PLOG](https://github.com/SergiusTheBest/plog) 开源库，实现日志记录。在 GoogleTest 单元测试的基础上，看日志判断线程是否按照设计期望正确运行着。
+Use a [PLOG](https://github.com/SergiusTheBest/plog) open source library to implement logging. Based on GoogleTest unit tests, look at the logs to determine if the thread is running correctly according to the design expectations.
+
+
+Translated with www.DeepL.com/Translator (free version)
