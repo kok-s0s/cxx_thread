@@ -28,14 +28,14 @@ int Human::GetCountSayWantToSleep() { return _countSayWantToSleep; }
 void Human::SendSayHelloSignal() {
   PLOGD << "SendSayHelloSignal";
   std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      SayHello_Signal, std::shared_ptr<std::string>(nullptr));
+      SayHello_Signal, std::shared_ptr<void>(nullptr));
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
 void Human::SendSayGoodByeSignal() {
   PLOGD << "SendSayGoodByeSignal";
   std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      SayGoodBye_Signal, std::shared_ptr<std::string>(nullptr));
+      SayGoodBye_Signal, std::shared_ptr<void>(nullptr));
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
