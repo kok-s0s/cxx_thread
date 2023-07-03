@@ -26,9 +26,9 @@ struct SignalMsg {
 class ThreadBase {
  public:
   ThreadBase &operator=(const ThreadBase &) = delete;  // non copyable
-  ThreadBase &operator=(ThreadBase &&) = delete;       // non movable
-  ThreadBase(ThreadBase &&) = delete;                  // non movable
-  ThreadBase(const ThreadBase &) = delete;  // non construction-copyable
+  ThreadBase(const ThreadBase &) = delete;        // non construction-copyable
+  ThreadBase &operator=(ThreadBase &&) = delete;  // non movable
+  ThreadBase(ThreadBase &&) = delete;             // non movable
 
   /// Constructor
   explicit ThreadBase();
@@ -49,22 +49,25 @@ class ThreadBase {
 
   /// Get the ID of the current thread
   /// @return The current thread ID
-  static std::thread::id GetCurrentThreadId();
+  std::thread::id GetCurrentThreadId();
 
   /// Send a message to the message queue (async)
-  /// @param[in] data - message (signal, data required for slot function)
+  /// @param[in] signalMsg - message (signal, data required for slot function)
   void SendSlotFuncAsyncRunMsg(std::shared_ptr<SignalMsg> signalMsg);
 
   /// Send a message to the message queue (sync)
-  /// @param[in] data - message (signal, data required for slot function)
+  /// @param[in] signalMsg - message (signal, data required for slot function)
   void SendSlotFuncSyncRunMsg(std::shared_ptr<SignalMsg> signalMsg);
 
  protected:
   /// Build the relationship between the signal and the slot function
+  /// @param[in] signalMsg - message (signal, data required for slot function)
   virtual void UserCustomFunction(std::shared_ptr<SignalMsg> signalMsg) = 0;
 
  private:
   /// Send a message to the thread queue (async or sync)
+  /// @param[in] wait - async: false, sync: true
+  /// @param[in] signalMsg - message (signal, data required for slot function)
   void SendMsg(bool wait, std::shared_ptr<SignalMsg> signalMsg);
 
   /// Process the message queue
