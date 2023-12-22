@@ -3,8 +3,6 @@ project(thread VERSION 0.1.0)
 
 set (CMAKE_CXX_STANDARD 20)
 
-include_directories(plog/include)
-
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -14,10 +12,15 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+include_directories(
+  ${CMAKE_SOURCE_DIR}/src
+  ${CMAKE_SOURCE_DIR}/src/plog/include
+)
+
 add_executable(${PROJECT_NAME}
-  main.cpp
-  ThreadBase.cpp
-  Human.cpp
+  ${CMAKE_SOURCE_DIR}/src/main.cpp
+  ${CMAKE_SOURCE_DIR}/src/ThreadBase.cpp
+  ${CMAKE_SOURCE_DIR}/src/Human.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
