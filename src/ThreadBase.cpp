@@ -2,16 +2,7 @@
 
 ThreadBase::ThreadBase() : _thread(nullptr) {}
 
-ThreadBase::~ThreadBase() { DestroyThread(); }
-
-bool ThreadBase::CreateThread() {
-  if (!_thread) {
-    _thread = std::make_unique<std::thread>(&ThreadBase::Process, this);
-  }
-  return true;
-}
-
-void ThreadBase::DestroyThread() {
+ThreadBase::~ThreadBase() {
   if (!_thread) return;
 
   // Send a message to the thread queue to destroy the thread
@@ -23,8 +14,26 @@ void ThreadBase::DestroyThread() {
   }
 
   // Wait for the thread to be destroyed
-  _thread->join();
-  _thread = nullptr;
+  try {
+    if (_thread->joinable()) {
+      _thread->join();
+    }
+    _thread = nullptr;
+  } catch (const std::exception& e) {
+    std::cerr << "Error joining thread: " << e.what() << std::endl;
+  }
+}
+
+bool ThreadBase::CreateThread() {
+  try {
+    if (!_thread) {
+      _thread = std::make_unique<std::thread>(&ThreadBase::Process, this);
+    }
+    return true;
+  } catch (const std::exception& e) {
+    std::cerr << "Error creating thread: " << e.what() << std::endl;
+    return false;
+  }
 }
 
 std::thread::id ThreadBase::GetThreadId() {
@@ -42,11 +51,7 @@ void ThreadBase::SendSlotFuncAsyncRunMsg(std::shared_ptr<SignalMsg> signalMsg) {
 void ThreadBase::SendSlotFuncSyncRunMsg(std::shared_ptr<SignalMsg> signalMsg) {
   SendMsg(true, std::move(signalMsg));
   std::unique_lock<std::mutex> lock(_mutex);
-  try {
-    _cv.wait(lock, [this] { return _syncProcessed; });
-  } catch (...) {
-    // Ensure _syncProcessed is set to true even if an exception is thrown
-  }
+  _cv.wait(lock, [this] { return _syncProcessed; });
 }
 
 void ThreadBase::SendMsg(bool wait, std::shared_ptr<SignalMsg> signalMsg) {
@@ -81,7 +86,11 @@ void ThreadBase::Process() {
 
     if (signalMsg->GetSignal() == DestroyThread_Signal) break;
 
-    UserCustomFunction(signalMsg);
+    try {
+      UserCustomFunction(signalMsg);
+    } catch (const std::exception& e) {
+      std::cerr << "Error in UserCustomFunction: " << e.what() << std::endl;
+    }
 
     if (signalMsg->GetWait()) {
       std::lock_guard<std::mutex> lock(_mutex);

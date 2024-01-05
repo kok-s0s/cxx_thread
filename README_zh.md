@@ -14,22 +14,21 @@
 
 `SignalMsg` - 结构体
 
-| 变量名    | 含义                                                            |
-|:----------|:--------------------------------------------------------------|
+| 变量名    | 含义                                                               |
+| :-------- | :----------------------------------------------------------------- |
 | `_wait`   | `bool` 类型 - 若 `_wait` 为 `true`，槽函数同步执行，反之异步执行。 |
-| `_signal` | `int` 类型 - 用于表示信号                                       |
-| `_msg`    | `std::shared_ptr<void>` 类型 - 存储槽函数所需的参数数据         |
+| `_signal` | `int` 类型 - 用于表示信号                                          |
+| `_msg`    | `std::shared_ptr<void>` 类型 - 存储槽函数所需的参数数据            |
 
 `ThreadBase` 是一个基于 `std::thread` 的线程基类，用于处理消息队列（存储数据类型为 `SignalMsg`），该类提供了以下功能函数：
 
 | 函数名                    | 作用                                                  |
-|:--------------------------|:----------------------------------------------------|
+| :------------------------ | :---------------------------------------------------- |
 | `CreateThread`            | 创建工作线程                                          |
-| `DestroyThread`           | 销毁工作线程                                          |
 | `GetThreadID`             | 获取线程 ID                                           |
 | `GetCurrentThreadID`      | 获取当前线程 ID                                       |
-| `SendSlotFuncAsyncRunMsg` | 发送 `SignalMsg` 类型的对象，槽函数异步执行            |
-| `SendSlotFuncSyncRunMsg`  | 发送 `SignalMsg` 类型的对象，槽函数同步执行            |
+| `SendSlotFuncAsyncRunMsg` | 发送 `SignalMsg` 类型的对象，槽函数异步执行           |
+| `SendSlotFuncSyncRunMsg`  | 发送 `SignalMsg` 类型的对象，槽函数同步执行           |
 | `UserCustomFunction`      | 纯虚函数 - 派生类通过重写该函数将信号和槽函数绑定起来 |
 | `SendMsg`                 | 生产者 - 往消息队列传递 `SignalMsg` 类型的对象        |
 | `Process`                 | 消费者 - 消耗消息队列中 `SignalMsg` 类型的对象        |

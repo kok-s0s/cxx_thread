@@ -27,31 +27,51 @@ int Human::GetCountSayWantToSleep() { return _countSayWantToSleep; }
 
 void Human::SendSayHelloSignal() {
   PLOGD << "SendSayHelloSignal";
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      SayHello_Signal, std::shared_ptr<void>(nullptr));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(SayHello_Signal,
+                                            std::shared_ptr<void>(nullptr));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
 void Human::SendSayGoodByeSignal() {
   PLOGD << "SendSayGoodByeSignal";
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      SayGoodBye_Signal, std::shared_ptr<void>(nullptr));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(SayGoodBye_Signal,
+                                            std::shared_ptr<void>(nullptr));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
 void Human::SendWillDoSignal(const std::string& doWhat) {
   PLOGD << "SendWillDoSignal";
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(doWhat);
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      WillDo_Signal, std::static_pointer_cast<void>(msgData));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(
+        WillDo_Signal, std::static_pointer_cast<void>(msgData));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
 void Human::SendPlanToDoSignal(const Plan& plan) {
   PLOGD << "SendPlanToDoSignal";
   std::shared_ptr<Plan> msgData = std::make_shared<Plan>(plan);
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      PlanToDo_Signal, std::static_pointer_cast<void>(msgData));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(
+        PlanToDo_Signal, std::static_pointer_cast<void>(msgData));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
@@ -61,8 +81,13 @@ void Human::SendAskAQuestionSignal(std::shared_ptr<Human> respondent,
   _sentence = respondent->GetName() + ", " + question;
   std::shared_ptr<std::string> msgData =
       std::make_shared<std::string>(question);
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      AskAQuestion_Signal, std::static_pointer_cast<void>(msgData));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(
+        AskAQuestion_Signal, std::static_pointer_cast<void>(msgData));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
   respondent->SendGetAQuestionSignal(question);
   respondent = nullptr;
@@ -72,8 +97,13 @@ void Human::SendGetAQuestionSignal(const std::string& question) {
   PLOGD << "SendGetAQuestionSignal";
   std::shared_ptr<std::string> msgData =
       std::make_shared<std::string>(question);
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      GetAQuestion_Signal, std::static_pointer_cast<void>(msgData));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(
+        GetAQuestion_Signal, std::static_pointer_cast<void>(msgData));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
@@ -82,8 +112,13 @@ void Human::SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
   PLOGD << "SendAnswerAQuestionSignal";
   _sentence = questioner->GetName() + ", " + answer;
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      AnswerAQuestion_Signal, std::static_pointer_cast<void>(msgData));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(
+        AnswerAQuestion_Signal, std::static_pointer_cast<void>(msgData));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
   questioner->SendGetAAnswerSignal(answer);
   questioner = nullptr;
@@ -92,8 +127,13 @@ void Human::SendAnswerAQuestionSignal(std::shared_ptr<Human> questioner,
 void Human::SendGetAAnswerSignal(const std::string& answer) {
   PLOGD << "SendGetAAnswerSignal";
   std::shared_ptr<std::string> msgData = std::make_shared<std::string>(answer);
-  std::shared_ptr<SignalMsg> signalMsg = std::make_shared<SignalMsg>(
-      GetAAnswer_Signal, std::static_pointer_cast<void>(msgData));
+  std::shared_ptr<SignalMsg> signalMsg;
+  try {
+    signalMsg = std::make_shared<SignalMsg>(
+        GetAAnswer_Signal, std::static_pointer_cast<void>(msgData));
+  } catch (const std::bad_alloc& e) {
+    PLOGE << "Error creating SignalMsg: " << e.what();
+  }
   SendSlotFuncSyncRunMsg(std::move(signalMsg));
 }
 
@@ -102,19 +142,27 @@ void Human::SendGetAAnswerSignal(const std::string& answer) {
 #pragma region public_function_to_control_timer
 
 void Human::CreateTimer() {
-  if (_timerThread == nullptr) {
-    PLOGD << "CreateTimer";
-    _destroyTimer = false;
-    _timerThread = std::make_unique<std::thread>(&Human::TimedTask, this);
+  try {
+    if (_timerThread == nullptr) {
+      PLOGD << "CreateTimer";
+      _destroyTimer = false;
+      _timerThread = std::make_unique<std::thread>(&Human::TimedTask, this);
+    }
+  } catch (const std::exception& e) {
+    PLOGE << "Error creating timer thread: " << e.what();
   }
 }
 
 void Human::DestroyTimer() {
-  if (_timerThread != nullptr) {
-    PLOGD << "DestroyTimer";
-    _destroyTimer = true;
-    _timerThread->join();
-    _timerThread = nullptr;
+  try {
+    if (_timerThread != nullptr) {
+      PLOGD << "DestroyTimer";
+      _destroyTimer = true;
+      _timerThread->join();
+      _timerThread = nullptr;
+    }
+  } catch (const std::exception& e) {
+    PLOGE << "Error joining timer thread: " << e.what();
   }
 }
 
@@ -123,54 +171,58 @@ void Human::DestroyTimer() {
 void Human::UserCustomFunction(std::shared_ptr<SignalMsg> signalMsg) {
   PLOGD << "UserCustomFunction"
         << " -- " << signalMsg->GetSignal();
-  switch (signalMsg->GetSignal()) {
-    case SayHello_Signal: {
-      SayHelloSlot();
-      break;
+  try {
+    switch (signalMsg->GetSignal()) {
+      case SayHello_Signal: {
+        SayHelloSlot();
+        break;
+      }
+      case SayGoodBye_Signal: {
+        SayGoodByeSlot();
+        break;
+      }
+      case WillDo_Signal: {
+        std::string doWhat =
+            *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
+        WillDoSlot(doWhat);
+        break;
+      }
+      case PlanToDo_Signal: {
+        auto plan = *(std::static_pointer_cast<Plan>(signalMsg->GetMsg()));
+        PlanToDoSlot(plan);
+        break;
+      }
+      case AskAQuestion_Signal: {
+        auto question =
+            *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
+        AskAQuestionSlot(question);
+        break;
+      }
+      case GetAQuestion_Signal: {
+        auto question =
+            *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
+        GetAQuestionSlot(question);
+        break;
+      }
+      case AnswerAQuestion_Signal: {
+        std::string answer =
+            *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
+        AnswerAQuestionSlot(answer);
+        break;
+      }
+      case GetAAnswer_Signal: {
+        std::string answer =
+            *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
+        GetAAnswerSlot(answer);
+        break;
+      }
+      case WantToSleep_Signal: {
+        WantToSleepSlot();
+        break;
+      }
     }
-    case SayGoodBye_Signal: {
-      SayGoodByeSlot();
-      break;
-    }
-    case WillDo_Signal: {
-      std::string doWhat =
-          *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
-      WillDoSlot(doWhat);
-      break;
-    }
-    case PlanToDo_Signal: {
-      auto plan = *(std::static_pointer_cast<Plan>(signalMsg->GetMsg()));
-      PlanToDoSlot(plan);
-      break;
-    }
-    case AskAQuestion_Signal: {
-      auto question =
-          *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
-      AskAQuestionSlot(question);
-      break;
-    }
-    case GetAQuestion_Signal: {
-      auto question =
-          *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
-      GetAQuestionSlot(question);
-      break;
-    }
-    case AnswerAQuestion_Signal: {
-      std::string answer =
-          *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
-      AnswerAQuestionSlot(answer);
-      break;
-    }
-    case GetAAnswer_Signal: {
-      std::string answer =
-          *(std::static_pointer_cast<std::string>(signalMsg->GetMsg()));
-      GetAAnswerSlot(answer);
-      break;
-    }
-    case WantToSleep_Signal: {
-      WantToSleepSlot();
-      break;
-    }
+  } catch (const std::exception& e) {
+    PLOGE << "Error in UserCustomFunction: " << e.what();
   }
 }
 

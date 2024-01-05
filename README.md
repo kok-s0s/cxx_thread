@@ -15,24 +15,23 @@ Since this thread base class is designed to replace Qt's `QThread`, the expected
 `SignalMsg` - struct
 
 | variable name | meaning                                                                                                    |
-|:--------------|:-----------------------------------------------------------------------------------------------------------|
+| :------------ | :--------------------------------------------------------------------------------------------------------- |
 | `_wait`       | type `bool` - If `_wait` is `true`, the slot function is executed synchronously, otherwise asynchronously. |
 | `_signal`     | `int` type - used to represent signals                                                                     |
 | `_msg`        | `std::shared_ptr<void>` type - stores the parameter data required by the slot function                     |
 
 `ThreadBase` is a thread base class based on `std::thread` for handling message queues (storing data of type `SignalMsg`), which provides the following function functions:
 
-| function name  | role                    |
-|:---------------|:------------------------|
-| `CreateThread` | creates a worker thread |
-| `DestroyThread` | destroy the thread
-| `GetThreadID` | get the thread ID |
-| `GetCurrentThreadID` | Get the current thread ID |
-| `SendSlotFuncAsyncRunMsg` | send an object of type `SignalMsg` to be executed asynchronously by the slot function |
-| `SendSlotFuncSyncRunMsg` | send an object of type `SignalMsg`, the slot function executes synchronously |
-| `UserCustomFunction` | pure virtual function - the derived class binds the signal to the slot function by overriding the function |
-| `SendMsg` | Producer - passes an object of type `SignalMsg` to the message queue |
-| `Process` | Consumer - consumes a `SignalMsg` type object in the message queue |
+| function name             | role                                                                                                       |
+| :------------------------ | :--------------------------------------------------------------------------------------------------------- |
+| `CreateThread`            | creates a worker thread                                                                                    |
+| `GetThreadID`             | get the thread ID                                                                                          |
+| `GetCurrentThreadID`      | Get the current thread ID                                                                                  |
+| `SendSlotFuncAsyncRunMsg` | send an object of type `SignalMsg` to be executed asynchronously by the slot function                      |
+| `SendSlotFuncSyncRunMsg`  | send an object of type `SignalMsg`, the slot function executes synchronously                               |
+| `UserCustomFunction`      | pure virtual function - the derived class binds the signal to the slot function by overriding the function |
+| `SendMsg`                 | Producer - passes an object of type `SignalMsg` to the message queue                                       |
+| `Process`                 | Consumer - consumes a `SignalMsg` type object in the message queue                                         |
 
 The `ThreadBase` thread base class does not support copy, construct copy and `Move` behavior.
 

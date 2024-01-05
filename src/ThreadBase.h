@@ -2,6 +2,7 @@
 #define THREADBASE_H_
 
 #include <condition_variable>
+#include <iostream>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -39,9 +40,6 @@ class ThreadBase {
   /// Called once to create the worker thread
   /// @return True if thread is created. False otherwise.
   bool CreateThread();
-
-  /// Called once to destroy the worker thread
-  void DestroyThread();
 
   /// Get the ID of the worker thread
   /// @return The worker thread ID
