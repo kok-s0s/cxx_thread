@@ -19,56 +19,115 @@ struct SignalMsg {
   std::shared_ptr<void> GetMsg() const { return _msg; }
 
  private:
-  bool _wait = false;          // async: false, sync: true (default: false)
-  int _signal = -1;            // -1: destroy thread
-  std::shared_ptr<void> _msg;  // data required by the slot function
+  bool _wait = false;
+  int _signal = -1;
+  std::shared_ptr<void> _msg;
 };
 
+/**
+ * @brief The ThreadBase class is a base class for creating threads in C++.
+ *
+ * This class provides functionality for creating and managing threads. It
+ * allows users to define their own custom function that will be executed in a
+ * separate thread.
+ *
+ * The class also provides methods for sending messages to the thread and
+ * retrieving information about the thread.
+ */
 class ThreadBase {
  public:
-  ThreadBase &operator=(const ThreadBase &) = delete;  // non copyable
-  ThreadBase(const ThreadBase &) = delete;        // non construction-copyable
-  ThreadBase &operator=(ThreadBase &&) = delete;  // non movable
-  ThreadBase(ThreadBase &&) = delete;             // non movable
+  /**
+   * @brief Deleted copy assignment operator.
+   */
+  ThreadBase &operator=(const ThreadBase &) = delete;
 
-  /// Constructor
+  /**
+   * @brief Deleted copy constructor.
+   */
+  ThreadBase(const ThreadBase &) = delete;
+
+  /**
+   * @brief Deleted move assignment operator.
+   */
+  ThreadBase &operator=(ThreadBase &&) = delete;
+
+  /**
+   * @brief Deleted move constructor.
+   */
+  ThreadBase(ThreadBase &&) = delete;
+
+  /**
+   * @brief Constructs a ThreadBase object.
+   */
   explicit ThreadBase();
 
-  /// Destructor
+  /**
+   * @brief Destroys the ThreadBase object.
+   */
   virtual ~ThreadBase();
 
-  /// Called once to create the worker thread
-  /// @return True if thread is created. False otherwise.
+  /**
+   * @brief Creates a new thread and starts executing the custom function.
+   *
+   * @return true if the thread was successfully created, false otherwise.
+   */
   bool CreateThread();
 
-  /// Get the ID of the worker thread
-  /// @return The worker thread ID
+  /**
+   * @brief Gets the ID of the thread.
+   *
+   * @return The ID of the thread.
+   */
   std::thread::id GetThreadId();
 
-  /// Get the ID of the current thread
-  /// @return The current thread ID
+  /**
+   * @brief Gets the ID of the current thread.
+   *
+   * @return The ID of the current thread.
+   */
   std::thread::id GetCurrentThreadId();
 
-  /// Send a message to the message queue (async)
-  /// @param[in] signalMsg - message (signal, data required for slot function)
+  /**
+   * @brief Sends a signal message to the thread and runs the custom function
+   * asynchronously.
+   *
+   * @param signalMsg The signal message to send.
+   */
   void SendSlotFuncAsyncRunMsg(std::shared_ptr<SignalMsg> signalMsg);
 
-  /// Send a message to the message queue (sync)
-  /// @param[in] signalMsg - message (signal, data required for slot function)
+  /**
+   * @brief Sends a signal message to the thread and runs the custom function
+   * synchronously.
+   *
+   * @param signalMsg The signal message to send.
+   */
   void SendSlotFuncSyncRunMsg(std::shared_ptr<SignalMsg> signalMsg);
 
  protected:
-  /// Build the relationship between the signal and the slot function
-  /// @param[in] signalMsg - message (signal, data required for slot function)
+  /**
+   * @brief This is a pure virtual function that should be overridden by derived
+   * classes.
+   *
+   * This function is called when a signal message is received and should be
+   * implemented to perform the desired functionality in the separate thread.
+   *
+   * @param signalMsg The signal message received.
+   */
   virtual void UserCustomFunction(std::shared_ptr<SignalMsg> signalMsg) = 0;
 
  private:
-  /// Send a message to the thread queue (async or sync)
-  /// @param[in] wait - async: false, sync: true
-  /// @param[in] signalMsg - message (signal, data required for slot function)
+  /**
+   * @brief Sends a message to the thread.
+   *
+   * @param wait If true, the calling thread will wait until the message is
+   * processed.
+   * @param signalMsg The signal message to send.
+   */
   void SendMsg(bool wait, std::shared_ptr<SignalMsg> signalMsg);
 
-  /// Process the message queue
+  /**
+   * @brief Processes the signal messages in the queue.
+   */
   void Process();
 
  private:

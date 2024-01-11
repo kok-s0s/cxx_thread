@@ -5,7 +5,6 @@ ThreadBase::ThreadBase() : _thread(nullptr) {}
 ThreadBase::~ThreadBase() {
   if (!_thread) return;
 
-  // Send a message to the thread queue to destroy the thread
   {
     std::lock_guard<std::mutex> lock(_mutex);
     _signalMsgQueue.emplace(std::make_shared<SignalMsg>(
@@ -13,7 +12,6 @@ ThreadBase::~ThreadBase() {
     _cv.notify_one();
   }
 
-  // Wait for the thread to be destroyed
   try {
     if (_thread->joinable()) {
       _thread->join();
@@ -25,6 +23,11 @@ ThreadBase::~ThreadBase() {
 }
 
 bool ThreadBase::CreateThread() {
+  if (_thread) {
+    std::cerr << "Thread already exists." << std::endl;
+    return false;
+  }
+
   try {
     if (!_thread) {
       _thread = std::make_unique<std::thread>(&ThreadBase::Process, this);
@@ -58,25 +61,35 @@ void ThreadBase::SendMsg(bool wait, std::shared_ptr<SignalMsg> signalMsg) {
   if (!_thread) return;
 
   signalMsg->SetWait(wait);
+  {
+    std::unique_lock<std::mutex> lock(_mutex);
+    _signalMsgQueue.emplace(std::move(signalMsg));
 
-  // Add the message to the queue
-  std::unique_lock<std::mutex> lock(_mutex);
-  _signalMsgQueue.emplace(std::move(signalMsg));
-  _cv.notify_one();
-
-  if (wait) {
-    _syncProcessed = false;
-    // Wait for the message to be processed by the worker thread synchronously
-    _cv.wait(lock, [this] { return _syncProcessed; });
+    if (wait) {
+      _syncProcessed = false;
+    }
   }
+  _cv.notify_one();
 }
 
+/**
+ * @brief Process function for the ThreadBase class.
+ *
+ * This function is responsible for processing the signal messages in the
+ * thread. It waits for a signal message to be available in the signal message
+ * queue, retrieves the signal message, and calls the UserCustomFunction to
+ * handle the signal. If an exception occurs in the UserCustomFunction, an error
+ * message is printed to std::cerr. If the signal message has the "wait" flag
+ * set, it notifies the waiting thread that the processing is done.
+ *
+ * @note This function runs in an infinite loop until a DestroyThread_Signal is
+ * received.
+ */
 void ThreadBase::Process() {
   std::shared_ptr<SignalMsg> signalMsg;
 
   while (1) {
     {
-      // Wait for a message to be added to the queue
       std::unique_lock<std::mutex> lock(_mutex);
       _cv.wait(lock, [this] { return !_signalMsgQueue.empty(); });
       if (_signalMsgQueue.empty()) continue;
@@ -88,8 +101,8 @@ void ThreadBase::Process() {
 
     try {
       UserCustomFunction(signalMsg);
-    } catch (const std::exception& e) {
-      std::cerr << "Error in UserCustomFunction: " << e.what() << std::endl;
+    } catch (...) {
+      std::cerr << "Unknown error in UserCustomFunction." << std::endl;
     }
 
     if (signalMsg->GetWait()) {
